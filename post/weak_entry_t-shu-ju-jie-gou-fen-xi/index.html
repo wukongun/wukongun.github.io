@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>weak_entry_t数据结构分析 | wukongun</title>
-<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1589818338744">
+<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1589818401683">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://wukongun.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="weak_entry_t数据结构分析 | wukongun - Atom Feed" href="https://wukongun.github.io/atom.xml">
@@ -11,13 +11,11 @@
 
 
 
-    <meta name="description" content="`
-struct weak_entry_t {
-DisguisedPtr&lt;objc_object&gt; referent;
-union {
-struct {
-weak_referrer_t *referrers;
-uintptr_t..." />
+    <meta name="description" content="struct weak_entry_t {
+    DisguisedPtr&lt;objc_object&gt; referent;
+    union {
+        struct {
+            weak_referr..." />
     <meta name="keywords" content="" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
     <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
@@ -27,7 +25,7 @@ uintptr_t..." />
       <div class="main-content">
         <div class="site-header">
   <a href="https://wukongun.github.io">
-  <img class="avatar" src="https://wukongun.github.io/images/avatar.png?v=1589818338744" alt="">
+  <img class="avatar" src="https://wukongun.github.io/images/avatar.png?v=1589818401683" alt="">
   </a>
   <h1 class="site-title">
     wukongun
@@ -94,42 +92,41 @@ uintptr_t..." />
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <p>`<br>
-struct weak_entry_t {<br>
-DisguisedPtr&lt;objc_object&gt; referent;<br>
-union {<br>
-struct {<br>
-weak_referrer_t *referrers;<br>
-uintptr_t        out_of_line_ness : 2;<br>
-uintptr_t        num_refs : PTR_MINUS_2;<br>
-uintptr_t        mask;<br>
-uintptr_t        max_hash_displacement;<br>
-};<br>
-struct {<br>
-// out_of_line_ness field is low bits of inline_referrers[1]<br>
-weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT];<br>
-};<br>
-};</p>
-<pre><code>bool out_of_line() {
-    return (out_of_line_ness == REFERRERS_OUT_OF_LINE);
-}
+                <pre><code class="language-c++">struct weak_entry_t {
+    DisguisedPtr&lt;objc_object&gt; referent;
+    union {
+        struct {
+            weak_referrer_t *referrers;
+            uintptr_t        out_of_line_ness : 2;
+            uintptr_t        num_refs : PTR_MINUS_2;
+            uintptr_t        mask;
+            uintptr_t        max_hash_displacement;
+        };
+        struct {
+            // out_of_line_ness field is low bits of inline_referrers[1]
+            weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT];
+        };
+    };
 
-weak_entry_t&amp; operator=(const weak_entry_t&amp; other) {
-    memcpy(this, &amp;other, sizeof(other));
-    return *this;
-}
-
-weak_entry_t(objc_object *newReferent, objc_object **newReferrer)
-    : referent(newReferent)
-{
-    inline_referrers[0] = newReferrer;
-    for (int i = 1; i &lt; WEAK_INLINE_COUNT; i++) {
-        inline_referrers[i] = nil;
+    bool out_of_line() {
+        return (out_of_line_ness == REFERRERS_OUT_OF_LINE);
     }
-}
+
+    weak_entry_t&amp; operator=(const weak_entry_t&amp; other) {
+        memcpy(this, &amp;other, sizeof(other));
+        return *this;
+    }
+
+    weak_entry_t(objc_object *newReferent, objc_object **newReferrer)
+        : referent(newReferent)
+    {
+        inline_referrers[0] = newReferrer;
+        for (int i = 1; i &lt; WEAK_INLINE_COUNT; i++) {
+            inline_referrers[i] = nil;
+        }
+    }
+};
 </code></pre>
-<p>};<br>
-`</p>
 
               </div>
               <div class="toc-container">
