@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>weak_entry_t数据结构分析 | wukongun</title>
-<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1589855057795">
+<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1589855094475">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://wukongun.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="weak_entry_t数据结构分析 | wukongun - Atom Feed" href="https://wukongun.github.io/atom.xml">
@@ -25,7 +25,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://wukongun.github.io">
-  <img class="avatar" src="https://wukongun.github.io/images/avatar.png?v=1589855057795" alt="">
+  <img class="avatar" src="https://wukongun.github.io/images/avatar.png?v=1589855094475" alt="">
   </a>
   <h1 class="site-title">
     wukongun
@@ -256,8 +256,10 @@ static void grow_refs_and_insert(weak_entry_t *entry,
     entry-&gt;referrers[index] = nil;
     entry-&gt;num_refs--;
 }
-```c++
-* remove_referrer函数负责删除一个弱引用。函数首先处理inline数组的情况，直接将对应的弱引用项置空。如果使用了outline数组，则通过hash找到要删除的项，并直接删除。</code></pre>
+</code></pre>
+<ul>
+<li>remove_referrer函数负责删除一个弱引用。函数首先处理inline数组的情况，直接将对应的弱引用项置空。如果使用了outline数组，则通过hash找到要删除的项，并直接删除。</li>
+</ul>
 
               </div>
               <div class="toc-container">
