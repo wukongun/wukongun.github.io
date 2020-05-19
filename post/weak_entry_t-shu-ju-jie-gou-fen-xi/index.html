@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>weak_entry_t数据结构分析 | wukongun</title>
-<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1589820557464">
+<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1589855057795">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://wukongun.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="weak_entry_t数据结构分析 | wukongun - Atom Feed" href="https://wukongun.github.io/atom.xml">
@@ -25,7 +25,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://wukongun.github.io">
-  <img class="avatar" src="https://wukongun.github.io/images/avatar.png?v=1589820557464" alt="">
+  <img class="avatar" src="https://wukongun.github.io/images/avatar.png?v=1589855057795" alt="">
   </a>
   <h1 class="site-title">
     wukongun
@@ -85,7 +85,7 @@
                 2020-05-18
               </span>
               <span>
-                1 min read
+                5 min read
               </span>
               
             </div>
@@ -127,6 +127,137 @@
     }
 };
 </code></pre>
+<p>weak_entry_t内部优化设计：<br>
+一个对象对应的弱引用数目较少的话(&lt;=WEAK_INLINE_COUNT，runtime把这个值设置为4)，则其弱引用会被依次保存到一个inline数组里。这个inline数组的内存会在weak_entry_t初始化的时候一并分配好，而不是需要用到的时候再去申请新的内存空间，从而达到提到运行效率的目的。</p>
+<p>此外，union中的两个struct是共享同一块内存的，如果不使用inline数组，而直接使用HashTable的方式来实现，那么num_refs，mask和max_hash_displacement这些变量都需要单独的存储空间，会使用更多的内存。综上，使用inline数组在节约一定内存空间的同时还相对提高了运行效率。</p>
+<p>out_of_line_ness占用的是inline_referrers[1]最低两位的空间，也是weak_entry_t当前使用inline数组还是outline数组(也就是HashTable的实现)的标记位。</p>
+<p>对weak_entry_t主要操作的函数是grow_refs_and_insert和append_referrer</p>
+<p>append_referrer函数来为一个对象保存新的弱引用</p>
+<pre><code class="language-c++">static void append_referrer(weak_entry_t *entry, objc_object **new_referrer)
+{
+    if (! entry-&gt;out_of_line()) {
+        // Try to insert inline.
+        for (size_t i = 0; i &lt; WEAK_INLINE_COUNT; i++) {
+            if (entry-&gt;inline_referrers[i] == nil) {
+                entry-&gt;inline_referrers[i] = new_referrer;
+                return;
+            }
+        }
+
+        // Couldn't insert inline. Allocate out of line.
+        weak_referrer_t *new_referrers = (weak_referrer_t *)
+            calloc(WEAK_INLINE_COUNT, sizeof(weak_referrer_t));
+        // This constructed table is invalid, but grow_refs_and_insert
+        // will fix it and rehash it.
+        for (size_t i = 0; i &lt; WEAK_INLINE_COUNT; i++) {
+            new_referrers[i] = entry-&gt;inline_referrers[i];
+        }
+        entry-&gt;referrers = new_referrers;
+        entry-&gt;num_refs = WEAK_INLINE_COUNT;
+        entry-&gt;out_of_line_ness = REFERRERS_OUT_OF_LINE;
+        entry-&gt;mask = WEAK_INLINE_COUNT-1;
+        entry-&gt;max_hash_displacement = 0;
+    }
+
+    assert(entry-&gt;out_of_line());
+
+    if (entry-&gt;num_refs &gt;= TABLE_SIZE(entry) * 3/4) {
+        return grow_refs_and_insert(entry, new_referrer);
+    }
+    size_t begin = w_hash_pointer(new_referrer) &amp; (entry-&gt;mask);
+    size_t index = begin;
+    size_t hash_displacement = 0;
+    while (entry-&gt;referrers[index] != nil) {
+        hash_displacement++;
+        index = (index+1) &amp; entry-&gt;mask;
+        if (index == begin) bad_weak_table(entry);
+    }
+    if (hash_displacement &gt; entry-&gt;max_hash_displacement) {
+        entry-&gt;max_hash_displacement = hash_displacement;
+    }
+    weak_referrer_t &amp;ref = entry-&gt;referrers[index];
+    ref = new_referrer;
+    entry-&gt;num_refs++;
+}
+</code></pre>
+<ul>
+<li>
+<p>append_referrer函数首先处理weak_entry_t还在使用inline数组的情况。首先尝试像inline数组中插入一个新的弱引用，如果inline数组已满，那就创建一个WEAK_INLINE_COUNT大小的新数组，改用outline的方式，将inline数组中的元素依次拷贝过来。</p>
+</li>
+<li>
+<p>函数的后半部分处理使用outline数组的情况，如果outline数组的使用率在75%及以上，那么调用grow_refs_and_insert函数进行扩充，并且插入新的弱引用。否则就直接进行hash运算插入，过程和weak_table_t的插入过程基本相同。</p>
+</li>
+</ul>
+<pre><code class="language-c++">__attribute__((noinline, used))
+static void grow_refs_and_insert(weak_entry_t *entry, 
+                                 objc_object **new_referrer)
+{
+    assert(entry-&gt;out_of_line());
+
+    size_t old_size = TABLE_SIZE(entry);
+    size_t new_size = old_size ? old_size * 2 : 8;
+
+    size_t num_refs = entry-&gt;num_refs;
+    weak_referrer_t *old_refs = entry-&gt;referrers;
+    entry-&gt;mask = new_size - 1;
+    
+    entry-&gt;referrers = (weak_referrer_t *)
+        calloc(TABLE_SIZE(entry), sizeof(weak_referrer_t));
+    entry-&gt;num_refs = 0;
+    entry-&gt;max_hash_displacement = 0;
+    
+    for (size_t i = 0; i &lt; old_size &amp;&amp; num_refs &gt; 0; i++) {
+        if (old_refs[i] != nil) {
+            append_referrer(entry, old_refs[i]);
+            num_refs--;
+        }
+    }
+    // Insert
+    append_referrer(entry, new_referrer);
+    if (old_refs) free(old_refs);
+}
+</code></pre>
+<p>函数首先对outline数组进行扩充，容量是原来的两倍。而后依次将老数组中的元素hash插入到新数组中，最终hash插入新的引用。</p>
+<pre><code class="language-c++">static void remove_referrer(weak_entry_t *entry, objc_object **old_referrer)
+{
+    if (! entry-&gt;out_of_line()) {
+        for (size_t i = 0; i &lt; WEAK_INLINE_COUNT; i++) {
+            if (entry-&gt;inline_referrers[i] == old_referrer) {
+                entry-&gt;inline_referrers[i] = nil;
+                return;
+            }
+        }
+        _objc_inform(&quot;Attempted to unregister unknown __weak variable &quot;
+                     &quot;at %p. This is probably incorrect use of &quot;
+                     &quot;objc_storeWeak() and objc_loadWeak(). &quot;
+                     &quot;Break on objc_weak_error to debug.\n&quot;, 
+                     old_referrer);
+        objc_weak_error();
+        return;
+    }
+
+    size_t begin = w_hash_pointer(old_referrer) &amp; (entry-&gt;mask);
+    size_t index = begin;
+    size_t hash_displacement = 0;
+    while (entry-&gt;referrers[index] != old_referrer) {
+        index = (index+1) &amp; entry-&gt;mask;
+        if (index == begin) bad_weak_table(entry);
+        hash_displacement++;
+        if (hash_displacement &gt; entry-&gt;max_hash_displacement) {
+            _objc_inform(&quot;Attempted to unregister unknown __weak variable &quot;
+                         &quot;at %p. This is probably incorrect use of &quot;
+                         &quot;objc_storeWeak() and objc_loadWeak(). &quot;
+                         &quot;Break on objc_weak_error to debug.\n&quot;, 
+                         old_referrer);
+            objc_weak_error();
+            return;
+        }
+    }
+    entry-&gt;referrers[index] = nil;
+    entry-&gt;num_refs--;
+}
+```c++
+* remove_referrer函数负责删除一个弱引用。函数首先处理inline数组的情况，直接将对应的弱引用项置空。如果使用了outline数组，则通过hash找到要删除的项，并直接删除。</code></pre>
 
               </div>
               <div class="toc-container">
