@@ -2,14 +2,106 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>wukongun</title>
-    <updated>2020-05-19T12:27:30.336Z</updated>
+    <updated>2020-05-19T13:58:47.175Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
-    <subtitle>技术博客</subtitle>
+    <subtitle>记录点滴</subtitle>
     <logo>https://wukongun.github.io/images/avatar.png</logo>
     <icon>https://wukongun.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, wukongun</rights>
+    <entry>
+        <title type="html"><![CDATA[weak_table_t insert referent remove]]></title>
+        <id>https://wukongun.github.io/post/weak_table_t-insert-referent-remove/</id>
+        <link href="https://wukongun.github.io/post/weak_table_t-insert-referent-remove/">
+        </link>
+        <updated>2020-05-19T13:51:44.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="add-new_entry-to-the-objects-table-of-weak-references">Add new_entry to the object's table of weak references.</h2>
+<pre><code class="language-c++">/** 
+ * Add new_entry to the object's table of weak references.
+ * Does not check whether the referent is already in the table.
+ */
+static void weak_entry_insert(weak_table_t *weak_table, weak_entry_t *new_entry)
+{
+    weak_entry_t *weak_entries = weak_table-&gt;weak_entries;
+    assert(weak_entries != nil);
+
+    size_t begin = hash_pointer(new_entry-&gt;referent) &amp; (weak_table-&gt;mask);
+    size_t index = begin;
+    size_t hash_displacement = 0;
+    while (weak_entries[index].referent != nil) {
+        //说明哈希冲突了
+        index = (index+1) &amp; weak_table-&gt;mask;
+        if (index == begin) bad_weak_table(weak_entries);
+        hash_displacement++;
+    }
+
+    weak_entries[index] = *new_entry;
+    weak_table-&gt;num_entries++;
+    //不是很懂为什么要记录偏移量
+    if (hash_displacement &gt; weak_table-&gt;max_hash_displacement) {
+        weak_table-&gt;max_hash_displacement = hash_displacement;
+    }
+}
+</code></pre>
+<blockquote>
+<p>hash_pointer是对引用(指针)的hash函数</p>
+</blockquote>
+<blockquote>
+<p>weak_table的size保持是2的N次方，而mask的值为size - 1，所以mask的二进制后N位都是1，而之前都是0，类似于00000111。所以与mask与操作后的值肯定会在[0,mask]这个区间内，也正好是weak_table<br>
+实际的合法内存空间。</p>
+</blockquote>
+<blockquote>
+<p>如果发生了hash碰撞的话，将会依次向下寻找空位，并且用max_hash_displacement来记录整个weak_table最大的偏移量。</p>
+</blockquote>
+<blockquote>
+<p>解决哈希冲突的方法是开放地址法</p>
+</blockquote>
+<p>开放地址法有个非常关键的特征，就是所有输入的元素全部存放在哈希表里，也就是说，同义词冲突的解决是不需要任何的链表来实现的(链地址法)，换句话说，也就是这个哈希表的装载因子不会超过1。它的实现是在插入一个元素的时候，先通过哈希函数进行判断，若是发生哈希冲突，就以当前地址为基准，根据再寻址的方法（探查序列），去寻找下一个地址，若发生冲突再去寻找，直至找到一个为空的地址为止。所以这种方法又称为再散列法。</p>
+<h3 id="weak_table_t采用的线性探查来解决哈希冲突">weak_table_t采用的线性探查来解决哈希冲突</h3>
+<h2 id="查找的过程和插入类似">查找的过程和插入类似</h2>
+<pre><code class="language-c++">static weak_entry_t *
+weak_entry_for_referent(weak_table_t *weak_table, objc_object *referent)
+{
+    assert(referent);
+
+    weak_entry_t *weak_entries = weak_table-&gt;weak_entries;
+
+    if (!weak_entries) return nil;
+
+    size_t begin = hash_pointer(referent) &amp; weak_table-&gt;mask;
+    size_t index = begin;
+    size_t hash_displacement = 0;
+    while (weak_table-&gt;weak_entries[index].referent != referent) {
+        index = (index+1) &amp; weak_table-&gt;mask;
+        if (index == begin) bad_weak_table(weak_table-&gt;weak_entries);
+        hash_displacement++;
+        if (hash_displacement &gt; weak_table-&gt;max_hash_displacement) {
+            return nil;
+        }
+    }
+    
+    return &amp;weak_table-&gt;weak_entries[index];
+}
+</code></pre>
+<h2 id="remove-entry-from-the-zones-table-of-weak-references">Remove entry from the zone's table of weak references.</h2>
+<p>该函数的目的是从weak_table中删除某一项entry，即某个object和其weak引用的映射关系。函数的实现比较简单，首先将相应的内存清零，而后将weak_table的计数减一，然后调用weak_compact_maybe方法来判断是否需要缩小weak_table的空间。</p>
+<pre><code class="language-c++">/**
+ * Remove entry from the zone's table of weak references.
+ */
+static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
+{
+    // remove entry
+    if (entry-&gt;out_of_line()) free(entry-&gt;referrers);
+    bzero(entry, sizeof(*entry));
+
+    weak_table-&gt;num_entries--;
+
+    weak_compact_maybe(weak_table);
+}
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[weak_entry_t数据结构分析]]></title>
         <id>https://wukongun.github.io/post/weak_entry_t-shu-ju-jie-gou-fen-xi/</id>
