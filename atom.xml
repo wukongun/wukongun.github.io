@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>wukongun</title>
-    <updated>2020-05-19T14:00:44.035Z</updated>
+    <updated>2020-05-21T08:36:24.229Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -276,6 +276,21 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
     weak_compact_maybe(weak_table);
 }
 </code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[苹果设备和 mac电脑闪连]]></title>
+        <id>https://wukongun.github.io/post/ping-guo-she-bei-he-mac-dian-nao-shan-lian/</id>
+        <link href="https://wukongun.github.io/post/ping-guo-she-bei-he-mac-dian-nao-shan-lian/">
+        </link>
+        <updated>2017-03-15T07:45:35.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="iphone连接mac充电或者调试的时候-总是闪断-总结下这个问题">iPhone连接mac充电或者调试的时候 总是闪断 总结下这个问题</h3>
+<ol>
+<li>首先拔插数据线 看情况有无好转 接口内是否干净 有无杂物</li>
+<li>另外就是 电脑的usb电压不足 拔掉usb设备 关掉usb进程 重新连接usb设备 一般会解决闪连的问题<br>
+<code>sudo killall -STOP -c usbd</code></li>
+<li>如果还不行可以尝试换数据线 重复上面的方法</li>
+</ol>
 ]]></content>
     </entry>
 </feed>
