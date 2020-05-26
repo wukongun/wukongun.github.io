@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>wukongun</title>
-    <updated>2020-05-26T06:00:19.519Z</updated>
+    <updated>2020-05-26T13:18:31.946Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -291,6 +291,28 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
 <code>sudo killall -STOP -c usbd</code></li>
 <li>如果还不行可以尝试换数据线 重复上面的方法</li>
 </ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[C++ lambda表达式]]></title>
+        <id>https://wukongun.github.io/post/c-lambda-biao-da-shi/</id>
+        <link href="https://wukongun.github.io/post/c-lambda-biao-da-shi/">
+        </link>
+        <updated>2015-07-14T13:09:03.000Z</updated>
+        <content type="html"><![CDATA[<p><strong>C++ 11 中的Lambda表达式用于定义并创建匿名的函数对象，以简化编程工作。</strong><br>
+<code>auto fun1 = [&amp;](int v){ cout &lt;&lt; v + x + this-&gt;num &lt;&lt; endl; x = 3; };</code><br>
+可以看到一个lambda表达式可以分为5个部分</p>
+<blockquote>
+<p>[函数对象参数]、(操作符重载函数参数)、mutable或exception声明、-&gt;返回值类型、{ 函数体 }</p>
+</blockquote>
+<ul>
+<li>函数对象参数只能使用那些到定义Lambda为止时Lambda所在作用范围内可见的局部变量（包括Lambda所在类的this）。函数对象参数有几种形式 这里不展开说了 感兴趣的可以去找一下</li>
+<li>(操作符重载函数参数)，标识重载的()操作符的参数，没有参数时，这部分可以省略。参数可以通过按值（如：(a, b)）和按引用（如：(&amp;a, &amp;b)）两种方式进行传递。</li>
+<li>mutable或exception声明，这部分可以省略。按值传递函数对象参数时，加上mutable修饰符后，可以修改按值传递进来的拷贝（注意是能修改拷贝，而不是值本身）。<br>
+exception声明用于指定函数抛出的异常，如抛出整数类型的异常，可以使用throw(int)。</li>
+<li>-&gt;返回值类型，标识函数返回值的类型，当返回值为void，或者函数体中只有一处return的地方（此时编译器可以自动推断出返回值类型）时，这部分可以省略。</li>
+<li>{ 函数体 }，标识函数的实现，这部分不能省略，但函数体可以为空。</li>
+</ul>
 ]]></content>
     </entry>
     <entry>

@@ -2,19 +2,17 @@
   <head>
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>开源协议 | wukongun</title>
+<title>C++ lambda表达式 | wukongun</title>
 <link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1590499107272">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://wukongun.github.io/styles/main.css">
-<link rel="alternate" type="application/atom+xml" title="开源协议 | wukongun - Atom Feed" href="https://wukongun.github.io/atom.xml">
+<link rel="alternate" type="application/atom+xml" title="C++ lambda表达式 | wukongun - Atom Feed" href="https://wukongun.github.io/atom.xml">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
 
 
 
-    <meta name="description" content="
-开源协议的使用 可以看下图 具体协议需要哪些约束
-
-..." />
+    <meta name="description" content="C++ 11 中的Lambda表达式用于定义并创建匿名的函数对象，以简化编程工作。
+auto fun1 = [&amp;](int v){ cout &lt;&lt; v + x + this-&gt;num &lt;&lt; endl; ..." />
     <meta name="keywords" content="" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
     <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
@@ -77,34 +75,38 @@
         <div class="post-detail">
           <article class="post">
             <h2 class="post-title">
-              开源协议
+              C++ lambda表达式
             </h2>
             <div class="post-info">
               <span>
-                2015-05-13
+                2015-07-14
               </span>
               <span>
-                1 min read
+                2 min read
               </span>
               
             </div>
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <!-- more -->
-<h2 id="开源协议的使用-可以看下图-具体协议需要哪些约束">开源协议的使用 可以看下图 具体协议需要哪些约束</h2>
-<figure data-type="image" tabindex="1"><img src="https://wukongun.github.io/post-images/1590460057155.png" alt="" loading="lazy"></figure>
+                <p><strong>C++ 11 中的Lambda表达式用于定义并创建匿名的函数对象，以简化编程工作。</strong><br>
+<code>auto fun1 = [&amp;](int v){ cout &lt;&lt; v + x + this-&gt;num &lt;&lt; endl; x = 3; };</code><br>
+可以看到一个lambda表达式可以分为5个部分</p>
+<blockquote>
+<p>[函数对象参数]、(操作符重载函数参数)、mutable或exception声明、-&gt;返回值类型、{ 函数体 }</p>
+</blockquote>
+<ul>
+<li>函数对象参数只能使用那些到定义Lambda为止时Lambda所在作用范围内可见的局部变量（包括Lambda所在类的this）。函数对象参数有几种形式 这里不展开说了 感兴趣的可以去找一下</li>
+<li>(操作符重载函数参数)，标识重载的()操作符的参数，没有参数时，这部分可以省略。参数可以通过按值（如：(a, b)）和按引用（如：(&amp;a, &amp;b)）两种方式进行传递。</li>
+<li>mutable或exception声明，这部分可以省略。按值传递函数对象参数时，加上mutable修饰符后，可以修改按值传递进来的拷贝（注意是能修改拷贝，而不是值本身）。<br>
+exception声明用于指定函数抛出的异常，如抛出整数类型的异常，可以使用throw(int)。</li>
+<li>-&gt;返回值类型，标识函数返回值的类型，当返回值为void，或者函数体中只有一处return的地方（此时编译器可以自动推断出返回值类型）时，这部分可以省略。</li>
+<li>{ 函数体 }，标识函数的实现，这部分不能省略，但函数体可以为空。</li>
+</ul>
 
               </div>
               <div class="toc-container">
-                <ul class="markdownIt-TOC">
-<li>
-<ul>
-<li><a href="#%E5%BC%80%E6%BA%90%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BD%BF%E7%94%A8-%E5%8F%AF%E4%BB%A5%E7%9C%8B%E4%B8%8B%E5%9B%BE-%E5%85%B7%E4%BD%93%E5%8D%8F%E8%AE%AE%E9%9C%80%E8%A6%81%E5%93%AA%E4%BA%9B%E7%BA%A6%E6%9D%9F">开源协议的使用 可以看下图 具体协议需要哪些约束</a></li>
-</ul>
-</li>
-</ul>
-
+                
               </div>
             </div>
           </article>
@@ -113,9 +115,9 @@
         
           <div class="next-post">
             <div class="next">下一篇</div>
-            <a href="https://wukongun.github.io/post/yingyongjianchagengxin/">
+            <a href="https://wukongun.github.io/post/kai-yuan-xie-yi/">
               <h3 class="post-title">
-                iOS应⽤检查更新的方法 附代码
+                开源协议
               </h3>
             </a>
           </div>
