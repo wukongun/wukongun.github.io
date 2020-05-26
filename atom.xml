@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>wukongun</title>
-    <updated>2020-05-26T02:27:46.518Z</updated>
+    <updated>2020-05-26T02:28:25.126Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -10,16 +10,6 @@
     <logo>https://wukongun.github.io/images/avatar.png</logo>
     <icon>https://wukongun.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, wukongun</rights>
-    <entry>
-        <title type="html"><![CDATA[开源协议]]></title>
-        <id>https://wukongun.github.io/post/kai-yuan-xie-yi/</id>
-        <link href="https://wukongun.github.io/post/kai-yuan-xie-yi/">
-        </link>
-        <updated>2020-05-26T02:25:49.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="开源协议的使用-可以看下图-具体协议需要哪些约束">开源协议的使用 可以看下图 具体协议需要哪些约束</h2>
-<figure data-type="image" tabindex="1"><img src="https://wukongun.github.io/post-images/1590460057155.png" alt="" loading="lazy"></figure>
-]]></content>
-    </entry>
     <entry>
         <title type="html"><![CDATA[weak_entry_t数据结构分析]]></title>
         <id>https://wukongun.github.io/post/weak_entry_t-shu-ju-jie-gou-fen-xi/</id>
@@ -301,6 +291,17 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
 <code>sudo killall -STOP -c usbd</code></li>
 <li>如果还不行可以尝试换数据线 重复上面的方法</li>
 </ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[开源协议]]></title>
+        <id>https://wukongun.github.io/post/kai-yuan-xie-yi/</id>
+        <link href="https://wukongun.github.io/post/kai-yuan-xie-yi/">
+        </link>
+        <updated>2015-05-13T02:25:49.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+<h2 id="开源协议的使用-可以看下图-具体协议需要哪些约束">开源协议的使用 可以看下图 具体协议需要哪些约束</h2>
+<figure data-type="image" tabindex="1"><img src="https://wukongun.github.io/post-images/1590460057155.png" alt="" loading="lazy"></figure>
 ]]></content>
     </entry>
 </feed>
