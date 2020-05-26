@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>wukongun</title>
-    <updated>2020-05-26T02:55:20.432Z</updated>
+    <updated>2020-05-26T06:00:19.519Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -338,6 +338,28 @@ NSString *iTunesLink = @&quot;itms-apps://phobos.apple.com/WebObjects/MZStore.wo
 </code></pre>
 <p>请求http://itunes.apple.com/lookup?id=954270返回的数据给出的version为2.3, 与本地客户端版本号⽐比较，<br>
 即可判断有⽆无更新。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[iOS sdk的 md5 算法]]></title>
+        <id>https://wukongun.github.io/post/ios-sdk-de-md5-suan-fa/</id>
+        <link href="https://wukongun.github.io/post/ios-sdk-de-md5-suan-fa/">
+        </link>
+        <updated>2012-11-07T05:58:32.000Z</updated>
+        <content type="html"><![CDATA[<pre><code class="language-objective-c">#import &lt;CommonCrypto/CommonDigest.h&gt;
++ (NSString *)md5HexDigest:(NSString*)input {
+
+const char* str = [input UTF8String];
+unsigned char result[CC_MD5_DIGEST_LENGTH];
+CC_MD5(str, strlen(str), result);
+NSMutableString *ret = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH*2];//
+for(int i = 0; i&lt;CC_MD5_DIGEST_LENGTH; i++) {
+//    [ret appendFormat:@&quot;%02x&quot;,result[i]]; 大写
+    [ret appendFormat:@&quot;%x&quot;,result[i]]; //小写
+}
+    return ret;
+}
+</code></pre>
 ]]></content>
     </entry>
 </feed>
