@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>iOS sdk的 md5 算法 | wukongun</title>
-<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1590500105534">
+<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1590537139428">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://wukongun.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="iOS sdk的 md5 算法 | wukongun - Atom Feed" href="https://wukongun.github.io/atom.xml">
@@ -13,8 +13,7 @@
 
     <meta name="description" content="#import &lt;CommonCrypto/CommonDigest.h&gt;
 + (NSString *)md5HexDigest:(NSString*)input {
-
-const char* str = [input UTF8..." />
+const char* str = [input UTF8S..." />
     <meta name="keywords" content="" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
     <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
@@ -24,7 +23,7 @@ const char* str = [input UTF8..." />
       <div class="main-content">
         <div class="site-header">
   <a href="https://wukongun.github.io">
-  <img class="avatar" src="https://wukongun.github.io/images/avatar.png?v=1590500105534" alt="">
+  <img class="avatar" src="https://wukongun.github.io/images/avatar.png?v=1590537139428" alt="">
   </a>
   <h1 class="site-title">
     wukongun
@@ -91,9 +90,8 @@ const char* str = [input UTF8..." />
             
             <div class="post-content-wrapper">
               <div class="post-content">
-                <pre><code class="language-objective-c">#import &lt;CommonCrypto/CommonDigest.h&gt;
+                <pre><code class="language-c++">#import &lt;CommonCrypto/CommonDigest.h&gt;
 + (NSString *)md5HexDigest:(NSString*)input {
-
 const char* str = [input UTF8String];
 unsigned char result[CC_MD5_DIGEST_LENGTH];
 CC_MD5(str, strlen(str), result);
