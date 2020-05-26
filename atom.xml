@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>wukongun</title>
-    <updated>2020-05-26T02:28:58.059Z</updated>
+    <updated>2020-05-26T02:55:20.432Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -302,6 +302,42 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
         <content type="html"><![CDATA[<!-- more -->
 <h2 id="开源协议的使用-可以看下图-具体协议需要哪些约束">开源协议的使用 可以看下图 具体协议需要哪些约束</h2>
 <figure data-type="image" tabindex="1"><img src="https://wukongun.github.io/post-images/1590460057155.png" alt="" loading="lazy"></figure>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[iOS应⽤检查更新的方法 附代码]]></title>
+        <id>https://wukongun.github.io/post/yingyongjianchagengxin/</id>
+        <link href="https://wukongun.github.io/post/yingyongjianchagengxin/">
+        </link>
+        <updated>2014-07-07T02:52:20.000Z</updated>
+        <content type="html"><![CDATA[<p>虽然App Store能够提醒⽤用户软件更新，但很多⽤用户不会主动去更新⼀一⼤大堆的软件(我机器上待更新的 软件在100个左右)。如果在软件开启时提醒⽤用户更新 或者 更多中设置“检查更新”项，效果会好很多。 通常的做法是在⾃自⼰己的服务器上记录最新版本号，从iOS客户端请求，与本地版本号⽐比较，不同则提⽰示更 新。这种做法简单，缺点是需要单独的服务器⽀支持。 通过查阅相关⽂文章，找到了如下⽅方法，与上述⽅方法类似，不过不需要另外的服务器⽀支持。此为检查更新的最 优⽅方法。</p>
+<pre><code class="language-objective-c">NSString *version = @&quot;&quot;;
+NSURL *url = [NSURL URLWithString:@&quot;http://itunes.apple.com/lookup?id=954270&quot;]; versionRequest = [ASIFormDataRequest requestWithURL:url];
+[versionRequest setRequestMethod:@&quot;GET&quot;];
+[versionRequest setDelegate:self];
+[versionRequest setTimeOutSeconds:150];
+[versionRequest addRequestHeader:@&quot;Content-Type&quot; value:@&quot;application/json&quot;]; [versionRequest startSynchronous];
+//Response string of our REST call
+NSString* jsonResponseString = [versionRequest responseString];
+NSDictionary *loginAuthenticationResponse = [jsonResponseString objectFromJSONString]; NSArray *configData = [loginAuthenticationResponse valueForKey:@&quot;results&quot;];
+for (id config in configData)
+{
+version = [config valueForKey:@&quot;version&quot;]; }
+//Check your version with the version in app store
+if (![version isEqualToString:[itsUserDefaults objectForKey:@&quot;version&quot;]]) {
+ProAlertView *createUserResponseAlert = [[ProAlertView alloc] initWithTitle:@&quot;New Version!!&quot; message: @&quot;A new v ersion of app is available to download&quot; delegate:self cancelButtonTitle:@&quot;Cancel&quot; otherButtonTitles: @&quot;Download&quot;, nil ];
+[createUserResponseAlert show];
+[createUserResponseAlert release]; }
+</code></pre>
+<pre><code class="language-objective-c"> (void)alertView:(UIAlertView *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex { // the user clicked one of the OK/Cancel buttons
+if (buttonIndex == 1)
+{
+NSString *iTunesLink = @&quot;itms-apps://phobos.apple.com/WebObjects/MZStore.woa/wa/viewSoftwareUpdate?id =&lt;appid&gt;&amp;mt=8&quot;;
+[[UIApplication sharedApplication] openURL:[NSURL URLWithString:iTunesLink]]; }
+}
+</code></pre>
+<p>请求http://itunes.apple.com/lookup?id=954270返回的数据给出的version为2.3, 与本地客户端版本号⽐比较，<br>
+即可判断有⽆无更新。</p>
 ]]></content>
     </entry>
 </feed>
