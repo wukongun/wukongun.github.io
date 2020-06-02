@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>Andy</title>
-    <updated>2020-06-02T14:56:44.845Z</updated>
+    <updated>2020-06-02T15:02:18.843Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -16,8 +16,7 @@
         <link href="https://wukongun.github.io/post/weak_entry_t-shu-ju-jie-gou-fen-xi/">
         </link>
         <updated>2019-02-14T13:11:54.000Z</updated>
-        <content type="html"><![CDATA[<figure data-type="image" tabindex="1"><img src="https://wukongun.github.io/post-images/1591109447769.png" alt="" loading="lazy"></figure>
-<pre><code class="language-c++">struct weak_entry_t {
+        <content type="html"><![CDATA[<pre><code class="language-c++">struct weak_entry_t {
     DisguisedPtr&lt;objc_object&gt; referent;
     union {
         struct {
