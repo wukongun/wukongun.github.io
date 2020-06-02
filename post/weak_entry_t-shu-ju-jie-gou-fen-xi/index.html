@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>weak_entry_t数据结构分析 | Andy</title>
-<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1591103796478">
+<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1591109802062">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://wukongun.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="weak_entry_t数据结构分析 | Andy - Atom Feed" href="https://wukongun.github.io/atom.xml">
@@ -11,11 +11,12 @@
 
 
 
-    <meta name="description" content="struct weak_entry_t {
+    <meta name="description" content="
+struct weak_entry_t {
     DisguisedPtr&lt;objc_object&gt; referent;
     union {
         struct {
-            weak_referr..." />
+            weak_refer..." />
     <meta name="keywords" content="技术,weak,objective-c,runtime" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
     <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
@@ -25,7 +26,7 @@
       <div class="main-content">
         <div class="site-header">
   <a href="https://wukongun.github.io">
-  <img class="avatar" src="https://wukongun.github.io/images/avatar.png?v=1591103796478" alt="">
+  <img class="avatar" src="https://wukongun.github.io/images/avatar.png?v=1591109802062" alt="">
   </a>
   <h1 class="site-title">
     Andy
@@ -106,9 +107,12 @@
               
             </div>
             
+              <img class="post-feature-image" src="https://wukongun.github.io/post-images/weak_entry_t-shu-ju-jie-gou-fen-xi.png" alt="">
+            
             <div class="post-content-wrapper">
               <div class="post-content">
-                <pre><code class="language-c++">struct weak_entry_t {
+                <figure data-type="image" tabindex="1"><img src="https://wukongun.github.io/post-images/1591109447769.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c++">struct weak_entry_t {
     DisguisedPtr&lt;objc_object&gt; referent;
     union {
         struct {
