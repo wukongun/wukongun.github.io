@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>Andy</title>
-    <updated>2020-06-02T15:03:49.217Z</updated>
+    <updated>2020-06-03T02:30:36.650Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -16,175 +16,6 @@
         <link href="https://wukongun.github.io/post/weak_entry_t-shu-ju-jie-gou-fen-xi/">
         </link>
         <updated>2019-02-14T13:11:54.000Z</updated>
-        <content type="html"><![CDATA[<pre><code class="language-c++">struct weak_entry_t {
-    DisguisedPtr&lt;objc_object&gt; referent;
-    union {
-        struct {
-            weak_referrer_t *referrers;
-            uintptr_t        out_of_line_ness : 2;
-            uintptr_t        num_refs : PTR_MINUS_2;
-            uintptr_t        mask;
-            uintptr_t        max_hash_displacement;
-        };
-        struct {
-            // out_of_line_ness field is low bits of inline_referrers[1]
-            weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT];
-        };
-    };
-
-    bool out_of_line() {
-        return (out_of_line_ness == REFERRERS_OUT_OF_LINE);
-    }
-
-    weak_entry_t&amp; operator=(const weak_entry_t&amp; other) {
-        memcpy(this, &amp;other, sizeof(other));
-        return *this;
-    }
-
-    weak_entry_t(objc_object *newReferent, objc_object **newReferrer)
-        : referent(newReferent)
-    {
-        inline_referrers[0] = newReferrer;
-        for (int i = 1; i &lt; WEAK_INLINE_COUNT; i++) {
-            inline_referrers[i] = nil;
-        }
-    }
-};
-</code></pre>
-<p>weak_entry_t内部优化设计：<br>
-一个对象对应的弱引用数目较少的话(&lt;=WEAK_INLINE_COUNT，runtime把这个值设置为4)，则其弱引用会被依次保存到一个inline数组里。这个inline数组的内存会在weak_entry_t初始化的时候一并分配好，而不是需要用到的时候再去申请新的内存空间，从而达到提到运行效率的目的。</p>
-<p>此外，union中的两个struct是共享同一块内存的，如果不使用inline数组，而直接使用HashTable的方式来实现，那么num_refs，mask和max_hash_displacement这些变量都需要单独的存储空间，会使用更多的内存。综上，使用inline数组在节约一定内存空间的同时还相对提高了运行效率。</p>
-<p>out_of_line_ness占用的是inline_referrers[1]最低两位的空间，也是weak_entry_t当前使用inline数组还是outline数组(也就是HashTable的实现)的标记位。</p>
-<p>对weak_entry_t主要操作的函数是grow_refs_and_insert和append_referrer</p>
-<p>append_referrer函数来为一个对象保存新的弱引用</p>
-<pre><code class="language-c++">static void append_referrer(weak_entry_t *entry, objc_object **new_referrer)
-{
-    if (! entry-&gt;out_of_line()) {
-        // Try to insert inline.
-        for (size_t i = 0; i &lt; WEAK_INLINE_COUNT; i++) {
-            if (entry-&gt;inline_referrers[i] == nil) {
-                entry-&gt;inline_referrers[i] = new_referrer;
-                return;
-            }
-        }
-
-        // Couldn't insert inline. Allocate out of line.
-        weak_referrer_t *new_referrers = (weak_referrer_t *)
-            calloc(WEAK_INLINE_COUNT, sizeof(weak_referrer_t));
-        // This constructed table is invalid, but grow_refs_and_insert
-        // will fix it and rehash it.
-        for (size_t i = 0; i &lt; WEAK_INLINE_COUNT; i++) {
-            new_referrers[i] = entry-&gt;inline_referrers[i];
-        }
-        entry-&gt;referrers = new_referrers;
-        entry-&gt;num_refs = WEAK_INLINE_COUNT;
-        entry-&gt;out_of_line_ness = REFERRERS_OUT_OF_LINE;
-        entry-&gt;mask = WEAK_INLINE_COUNT-1;
-        entry-&gt;max_hash_displacement = 0;
-    }
-
-    assert(entry-&gt;out_of_line());
-
-    if (entry-&gt;num_refs &gt;= TABLE_SIZE(entry) * 3/4) {
-        return grow_refs_and_insert(entry, new_referrer);
-    }
-    size_t begin = w_hash_pointer(new_referrer) &amp; (entry-&gt;mask);
-    size_t index = begin;
-    size_t hash_displacement = 0;
-    while (entry-&gt;referrers[index] != nil) {
-        hash_displacement++;
-        index = (index+1) &amp; entry-&gt;mask;
-        if (index == begin) bad_weak_table(entry);
-    }
-    if (hash_displacement &gt; entry-&gt;max_hash_displacement) {
-        entry-&gt;max_hash_displacement = hash_displacement;
-    }
-    weak_referrer_t &amp;ref = entry-&gt;referrers[index];
-    ref = new_referrer;
-    entry-&gt;num_refs++;
-}
-</code></pre>
-<ul>
-<li>
-<p>append_referrer函数首先处理weak_entry_t还在使用inline数组的情况。首先尝试像inline数组中插入一个新的弱引用，如果inline数组已满，那就创建一个WEAK_INLINE_COUNT大小的新数组，改用outline的方式，将inline数组中的元素依次拷贝过来。</p>
-</li>
-<li>
-<p>函数的后半部分处理使用outline数组的情况，如果outline数组的使用率在75%及以上，那么调用grow_refs_and_insert函数进行扩充，并且插入新的弱引用。否则就直接进行hash运算插入，过程和weak_table_t的插入过程基本相同。</p>
-</li>
-</ul>
-<pre><code class="language-c++">__attribute__((noinline, used))
-static void grow_refs_and_insert(weak_entry_t *entry, 
-                                 objc_object **new_referrer)
-{
-    assert(entry-&gt;out_of_line());
-
-    size_t old_size = TABLE_SIZE(entry);
-    size_t new_size = old_size ? old_size * 2 : 8;
-
-    size_t num_refs = entry-&gt;num_refs;
-    weak_referrer_t *old_refs = entry-&gt;referrers;
-    entry-&gt;mask = new_size - 1;
-    
-    entry-&gt;referrers = (weak_referrer_t *)
-        calloc(TABLE_SIZE(entry), sizeof(weak_referrer_t));
-    entry-&gt;num_refs = 0;
-    entry-&gt;max_hash_displacement = 0;
-    
-    for (size_t i = 0; i &lt; old_size &amp;&amp; num_refs &gt; 0; i++) {
-        if (old_refs[i] != nil) {
-            append_referrer(entry, old_refs[i]);
-            num_refs--;
-        }
-    }
-    // Insert
-    append_referrer(entry, new_referrer);
-    if (old_refs) free(old_refs);
-}
-</code></pre>
-<p>函数首先对outline数组进行扩充，容量是原来的两倍。而后依次将老数组中的元素hash插入到新数组中，最终hash插入新的引用。</p>
-<pre><code class="language-c++">static void remove_referrer(weak_entry_t *entry, objc_object **old_referrer)
-{
-    if (! entry-&gt;out_of_line()) {
-        for (size_t i = 0; i &lt; WEAK_INLINE_COUNT; i++) {
-            if (entry-&gt;inline_referrers[i] == old_referrer) {
-                entry-&gt;inline_referrers[i] = nil;
-                return;
-            }
-        }
-        _objc_inform(&quot;Attempted to unregister unknown __weak variable &quot;
-                     &quot;at %p. This is probably incorrect use of &quot;
-                     &quot;objc_storeWeak() and objc_loadWeak(). &quot;
-                     &quot;Break on objc_weak_error to debug.\n&quot;, 
-                     old_referrer);
-        objc_weak_error();
-        return;
-    }
-
-    size_t begin = w_hash_pointer(old_referrer) &amp; (entry-&gt;mask);
-    size_t index = begin;
-    size_t hash_displacement = 0;
-    while (entry-&gt;referrers[index] != old_referrer) {
-        index = (index+1) &amp; entry-&gt;mask;
-        if (index == begin) bad_weak_table(entry);
-        hash_displacement++;
-        if (hash_displacement &gt; entry-&gt;max_hash_displacement) {
-            _objc_inform(&quot;Attempted to unregister unknown __weak variable &quot;
-                         &quot;at %p. This is probably incorrect use of &quot;
-                         &quot;objc_storeWeak() and objc_loadWeak(). &quot;
-                         &quot;Break on objc_weak_error to debug.\n&quot;, 
-                         old_referrer);
-            objc_weak_error();
-            return;
-        }
-    }
-    entry-&gt;referrers[index] = nil;
-    entry-&gt;num_refs--;
-}
-</code></pre>
-<ul>
-<li>remove_referrer函数负责删除一个弱引用。函数首先处理inline数组的情况，直接将对应的弱引用项置空。如果使用了outline数组，则通过hash找到要删除的项，并直接删除。</li>
-</ul>
-]]></content>
     </entry>
     <entry>
         <title type="html"><![CDATA[weak_table_t insert referent remove]]></title>
@@ -192,91 +23,6 @@ static void grow_refs_and_insert(weak_entry_t *entry,
         <link href="https://wukongun.github.io/post/weak_table_t-insert-referent-remove/">
         </link>
         <updated>2019-02-13T13:51:44.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="add-new_entry-to-the-objects-table-of-weak-references">Add new_entry to the object's table of weak references.</h2>
-<pre><code class="language-c++">/** 
- * Add new_entry to the object's table of weak references.
- * Does not check whether the referent is already in the table.
- */
-static void weak_entry_insert(weak_table_t *weak_table, weak_entry_t *new_entry)
-{
-    weak_entry_t *weak_entries = weak_table-&gt;weak_entries;
-    assert(weak_entries != nil);
-
-    size_t begin = hash_pointer(new_entry-&gt;referent) &amp; (weak_table-&gt;mask);
-    size_t index = begin;
-    size_t hash_displacement = 0;
-    while (weak_entries[index].referent != nil) {
-        //说明哈希冲突了
-        index = (index+1) &amp; weak_table-&gt;mask;
-        if (index == begin) bad_weak_table(weak_entries);
-        hash_displacement++;
-    }
-
-    weak_entries[index] = *new_entry;
-    weak_table-&gt;num_entries++;
-    //不是很懂为什么要记录偏移量
-    if (hash_displacement &gt; weak_table-&gt;max_hash_displacement) {
-        weak_table-&gt;max_hash_displacement = hash_displacement;
-    }
-}
-</code></pre>
-<blockquote>
-<p>hash_pointer是对引用(指针)的hash函数</p>
-</blockquote>
-<blockquote>
-<p>weak_table的size保持是2的N次方，而mask的值为size - 1，所以mask的二进制后N位都是1，而之前都是0，类似于00000111。所以与mask与操作后的值肯定会在[0,mask]这个区间内，也正好是weak_table<br>
-实际的合法内存空间。</p>
-</blockquote>
-<blockquote>
-<p>如果发生了hash碰撞的话，将会依次向下寻找空位，并且用max_hash_displacement来记录整个weak_table最大的偏移量。</p>
-</blockquote>
-<blockquote>
-<p>解决哈希冲突的方法是开放地址法</p>
-</blockquote>
-<p>开放地址法有个非常关键的特征，就是所有输入的元素全部存放在哈希表里，也就是说，同义词冲突的解决是不需要任何的链表来实现的(链地址法)，换句话说，也就是这个哈希表的装载因子不会超过1。它的实现是在插入一个元素的时候，先通过哈希函数进行判断，若是发生哈希冲突，就以当前地址为基准，根据再寻址的方法（探查序列），去寻找下一个地址，若发生冲突再去寻找，直至找到一个为空的地址为止。所以这种方法又称为再散列法。</p>
-<h3 id="weak_table_t采用的线性探查来解决哈希冲突">weak_table_t采用的线性探查来解决哈希冲突</h3>
-<h2 id="查找的过程和插入类似">查找的过程和插入类似</h2>
-<pre><code class="language-c++">static weak_entry_t *
-weak_entry_for_referent(weak_table_t *weak_table, objc_object *referent)
-{
-    assert(referent);
-
-    weak_entry_t *weak_entries = weak_table-&gt;weak_entries;
-
-    if (!weak_entries) return nil;
-
-    size_t begin = hash_pointer(referent) &amp; weak_table-&gt;mask;
-    size_t index = begin;
-    size_t hash_displacement = 0;
-    while (weak_table-&gt;weak_entries[index].referent != referent) {
-        index = (index+1) &amp; weak_table-&gt;mask;
-        if (index == begin) bad_weak_table(weak_table-&gt;weak_entries);
-        hash_displacement++;
-        if (hash_displacement &gt; weak_table-&gt;max_hash_displacement) {
-            return nil;
-        }
-    }
-    
-    return &amp;weak_table-&gt;weak_entries[index];
-}
-</code></pre>
-<h2 id="remove-entry-from-the-zones-table-of-weak-references">Remove entry from the zone's table of weak references.</h2>
-<p>该函数的目的是从weak_table中删除某一项entry，即某个object和其weak引用的映射关系。函数的实现比较简单，首先将相应的内存清零，而后将weak_table的计数减一，然后调用weak_compact_maybe方法来判断是否需要缩小weak_table的空间。</p>
-<pre><code class="language-c++">/**
- * Remove entry from the zone's table of weak references.
- */
-static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
-{
-    // remove entry
-    if (entry-&gt;out_of_line()) free(entry-&gt;referrers);
-    bzero(entry, sizeof(*entry));
-
-    weak_table-&gt;num_entries--;
-
-    weak_compact_maybe(weak_table);
-}
-</code></pre>
-]]></content>
     </entry>
     <entry>
         <title type="html"><![CDATA[计算机中的堆和和栈（物理内存上的解释）]]></title>
@@ -284,104 +30,6 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
         <link href="https://wukongun.github.io/post/ji-suan-ji-zhong-de-dui-he-he-zhan-wu-li-nei-cun-shang-de-jie-shi/">
         </link>
         <updated>2017-07-21T07:45:43.000Z</updated>
-        <content type="html"><![CDATA[<p>原文链接：https://blog.csdn.net/bai___ddd/java/article/details/78631525</p>
-<p>编程语言书籍中经常解释值类型被创建在栈上，引用类型被创建在堆上，但是并没有本质上解释这堆和栈是什么。我仅有高级语言编程经验，没有看过对此更清晰的解释。我的意思是我理解什么是栈，但是它们到底是什么，在哪儿呢（站在实际的计算机物理内存的角度上看）？</p>
-<p>1. 在通常情况下由操作系统（OS）和语言的运行时（runtime）控制吗？</p>
-<p>2. 它们的作用范围是什么？</p>
-<p>3. 它们的大小由什么决定？</p>
-<p>4. 哪个更快？</p>
-<p>答案一</p>
-<p>栈是为执行线程留出的内存空间。当函数被调用的时候，栈顶为局部变量和一些 bookkeeping 数据预留块。当函数执行完毕，块就没有用了，可能在下次的函数调用的时候再被使用。栈通常用后进先出（LIFO）的方式预留空间；因此最近的保留块（reserved block）通常最先被释放。这么做可以使跟踪堆栈变的简单；从栈中释放块（free block）只不过是指针的偏移而已。</p>
-<p>堆（heap）是为动态分配预留的内存空间。和栈不一样，从堆上分配和重新分配块没有固定模式；你可以在任何时候分配和释放它。这样使得跟踪哪部分堆已经被分配和被释放变的异常复杂；有许多定制的堆分配策略用来为不同的使用模式下调整堆的性能。</p>
-<p>每一个线程都有一个栈，但是每一个应用程序通常都只有一个堆（尽管为不同类型分配内存使用多个堆的情况也是有的）。</p>
-<p>直接回答你的问题： 1. 当线程创建的时候，操作系统（OS）为每一个系统级（system-level）的线程分配栈。通常情况下，操作系统通过调用语言的运行时（runtime）去为应用程序分配堆。 2. 栈附属于线程，因此当线程结束时栈被回收。堆通常通过运行时在应用程序启动时被分配，当应用程序（进程）退出时被回收。 3. 当线程被创建的时候，设置栈的大小。在应用程序启动的时候，设置堆的大小，但是可以在需要的时候扩展（分配器向操作系统申请更多的内存）。 4. 栈比堆要快，因为它存取模式使它可以轻松的分配和重新分配内存（指针/整型只是进行简单的递增或者递减运算），然而堆在分配和释放的时候有更多的复杂的 bookkeeping 参与。另外，在栈上的每个字节频繁的被复用也就意味着它可能映射到处理器缓存中，所以很快（译者注：局部性原理）。</p>
-<p>答案二</p>
-<p>Stack:</p>
-<p>1. 和堆一样存储在计算机 RAM 中。</p>
-<p>2. 在栈上创建变量的时候会扩展，并且会自动回收。</p>
-<p>3. 相比堆而言在栈上分配要快的多。</p>
-<p>4. 用数据结构中的栈实现。</p>
-<p>5. 存储局部数据，返回地址，用做参数传递。</p>
-<p>6. 当用栈过多时可导致栈溢出（无穷次（大量的）的递归调用，或者大量的内存分配）。</p>
-<p>7. 在栈上的数据可以直接访问（不是非要使用指针访问）。</p>
-<p>8. 如果你在编译之前精确的知道你需要分配数据的大小并且不是太大的时候，可以使用栈。</p>
-<p>9. 当你程序启动时决定栈的容量上限。</p>
-<p>Heap：</p>
-<p>1. 和栈一样存储在计算机RAM。</p>
-<p>2. 在堆上的变量必须要手动释放，不存在作用域的问题。数据可用 delete, delete[] 或者 free 来释放。</p>
-<p>3. 相比在栈上分配内存要慢。</p>
-<p>4. 通过程序按需分配。</p>
-<p>5. 大量的分配和释放可造成内存碎片。</p>
-<p>6. 在 C++ 中，在堆上创建数的据使用指针访问，用 new 或者 malloc 分配内存。</p>
-<p>7. 如果申请的缓冲区过大的话，可能申请失败。</p>
-<p>8. 在运行期间你不知道会需要多大的数据或者你需要分配大量的内存的时候，建议你使用堆。</p>
-<p>9. 可能造成内存泄露。</p>
-<p>举例：</p>
-<p>int foo()<br>
-{<br>
-char *pBuffer; //&lt;–nothing allocated yet (excluding the pointer itself, which is allocated here on the stack).<br>
-bool b = true; // Allocated on the stack.<br>
-if(b)<br>
-{<br>
-//Create 500 bytes on the stack<br>
-char buffer[500];</p>
-<p>//Create 500 bytes on the heap<br>
-pBuffer = new char[500];</p>
-<p>}//&lt;– buffer is deallocated here, pBuffer is not<br>
-}//&lt;— oops there’s a memory leak, I should have called delete[] pBuffer;</p>
-<p>答案三</p>
-<p>堆和栈是两种内存分配的两个统称。可能有很多种不同的实现方式，但是实现要符合几个基本的概念:</p>
-<p>1.对栈而言，栈中的新加数据项放在其他数据的顶部，移除时你也只能移除最顶部的数据（不能越位获取）。</p>
-<p></p>
-<p>2.对堆而言，数据项位置没有固定的顺序。你可以以任何顺序插入和删除，因为他们没有“顶部”数据这一概念。</p>
-<p></p>
-<p>上面上个图片很好的描述了堆和栈分配内存的方式。</p>
-<p>在通常情况下由操作系统（OS）和语言的运行时（runtime）控制吗？</p>
-<p>如前所述，堆和栈是一个统称，可以有很多的实现方式。计算机程序通常有一个栈叫做调用栈，用来存储当前函数调用相关的信息（比如：主调函数的地址，局部变量），因为函数调用之后需要返回给主调函数。栈通过扩展和收缩来承载信息。实际上，程序不是由运行时来控制的，它由编程语言、操作系统甚至是系统架构来决定。</p>
-<p>堆是在任何内存中动态和随机分配的（内存的）统称；也就是无序的。内存通常由操作系统分配，通过应用程序调用 API 接口去实现分配。在管理动态分配内存上会有一些额外的开销，不过这由操作系统来处理。</p>
-<p>它们的作用范围是什么？</p>
-<p>调用栈是一个低层次的概念，就程序而言，它和“作用范围”没什么关系。如果你反汇编一些代码，你就会看到指针引用堆栈部分。就高级语言而言，语言有它自己的范围规则。一旦函数返回，函数中的局部变量会直接直接释放。你的编程语言就是依据这个工作的。</p>
-<p>在堆中，也很难去定义。作用范围是由操作系统限定的，但是你的编程语言可能增加它自己的一些规则，去限定堆在应用程序中的范围。体系架构和操作系统是使用虚拟地址的，然后由处理器翻译到实际的物理地址中，还有页面错误等等。它们记录那个页面属于那个应用程序。不过你不用关心这些，因为你仅仅在你的编程语言中分配和释放内存，和一些错误检查（出现分配失败和释放失败的原因）。</p>
-<p>它们的大小由什么决定？</p>
-<p>依旧，依赖于语言，编译器，操作系统和架构。栈通常提前分配好了，因为栈必须是连续的内存块。语言的编译器或者操作系统决定它的大小。不要在栈上存储大块数据，这样可以保证有足够的空间不会溢出，除非出现了无限递归的情况（额，栈溢出了）或者其它不常见了编程决议。</p>
-<p>堆是任何可以动态分配的内存的统称。这要看你怎么看待它了，它的大小是变动的。在现代处理器中和操作系统的工作方式是高度抽象的，因此你在正常情况下不需要担心它实际的大小，除非你必须要使用你还没有分配的内存或者已经释放了的内存。</p>
-<p>哪个更快一些？</p>
-<p>栈更快因为所有的空闲内存都是连续的，因此不需要对空闲内存块通过列表来维护。只是一个简单的指向当前栈顶的指针。编译器通常用一个专门的、快速的寄存器来实现。更重要的一点事是，随后的栈上操作通常集中在一个内存块的附近，这样的话有利于处理器的高速访问（译者注：局部性原理）。</p>
-<p>答案四</p>
-<p>你问题的答案是依赖于实现的，根据不同的编译器和处理器架构而不同。下面简单的解释一下：</p>
-<p>1. 栈和堆都是用来从底层操作系统中获取内存的。</p>
-<p>2. 在多线程环境下每一个线程都可以有他自己完全的独立的栈，但是他们共享堆。并行存取被堆控制而不是栈。</p>
-<p>堆:</p>
-<p>1. 堆包含一个链表来维护已用和空闲的内存块。在堆上新分配（用 new 或者 malloc）内存是从空闲的内存块中找到一些满足要求的合适块。这个操作会更新堆中的块链表。这些元信息也存储在堆上，经常在每个块的头部一个很小区域。</p>
-<p>2. 堆的增加新快通常从地地址向高地址扩展。因此你可以认为堆随着内存分配而不断的增加大小。如果申请的内存大小很小的话，通常从底层操作系统中得到比申请大小要多的内存。</p>
-<p>3. 申请和释放许多小的块可能会产生如下状态：在已用块之间存在很多小的空闲块。进而申请大块内存失败，虽然空闲块的总和足够，但是空闲的小块是零散的，不能满足申请的大小，。这叫做“堆碎片”。</p>
-<p>4. 当旁边有空闲块的已用块被释放时，新的空闲块可能会与相邻的空闲块合并为一个大的空闲块，这样可以有效的减少“堆碎片”的产生。</p>
-<p></p>
-<p>栈:</p>
-<p>1. 栈经常与 sp 寄存器（译者注：”stack pointer”，了解汇编的朋友应该都知道）一起工作，最初 sp 指向栈顶（栈的高地址）。</p>
-<p>2. CPU 用 push 指令来将数据压栈，用 pop 指令来弹栈。当用 push 压栈时，sp 值减少（向低地址扩展）。当用 pop 弹栈时，sp 值增大。存储和获取数据都是 CPU 寄存器的值。</p>
-<p>3. 当函数被调用时，CPU使用特定的指令把当前的 IP （译者注：“instruction pointer”，是一个寄存器，用来记录 CPU 指令的位置）压栈。即执行代码的地址。CPU 接下来将调用函数地址赋给 IP ，进行调用。当函数返回时，旧的 IP 被弹栈，CPU 继续去函数调用之前的代码。</p>
-<p>4. 当进入函数时，sp 向下扩展，扩展到确保为函数的局部变量留足够大小的空间。如果函数中有一个 32-bit 的局部变量会在栈中留够四字节的空间。当函数返回时，sp 通过返回原来的位置来释放空间。</p>
-<p>5. 如果函数有参数的话，在函数调用之前，会将参数压栈。函数中的代码通过 sp 的当前位置来定位参数并访问它们。</p>
-<p>6. 函数嵌套调用和使用魔法一样，每一次新调用的函数都会分配函数参数，返回值地址、局部变量空间、嵌套调用的活动记录都要被压入栈中。函数返回时，按照正确方式的撤销。</p>
-<p>7. 栈要受到内存块的限制，不断的函数嵌套/为局部变量分配太多的空间，可能会导致栈溢出。当栈中的内存区域都已经被使用完之后继续向下写（低地址），会触发一个 CPU 异常。这个异常接下会通过语言的运行时转成各种类型的栈溢出异常。（译者注：“不同语言的异常提示不同，因此通过语言运行时来转换”我想他表达的是这个含义）</p>
-<p></p>
-<p>*函数的分配可以用堆来代替栈吗？</p>
-<p>不可以的，函数的活动记录（即局部或者自动变量）被分配在栈上， 这样做不但存储了这些变量，而且可以用来嵌套函数的追踪。</p>
-<p>堆的管理依赖于运行时环境，C 使用 malloc ，C++ 使用 new ，但是很多语言有垃圾回收机制。</p>
-<p>栈是更低层次的特性与处理器架构紧密的结合到一起。当堆不够时可以扩展空间，这不难做到，因为可以有库函数可以调用。但是，扩展栈通常来说是不可能的，因为在栈溢出的时候，执行线程就被操作系统关闭了，这已经太晚了。</p>
-<p>译者注</p>
-<p>关于堆栈的这个帖子，对我来说，收获非常多。我之前看过一些资料，自己写代码的时候也常常思考。就这方面，也和祥子（我的大学舍友，现在北京邮电读研，技术牛人）探讨过多次了。但是终究是一个一个的知识点，这个帖子看完之后，豁然开朗，把知识点终于连接成了一个网。这种感觉，经历过的一定懂得，期间的兴奋不言而喻。</p>
-<p>这个帖子跟帖者不少，我选了评分最高的四个。这四个之间也有一些是重复的观点。个人钟爱第四个回答者，我看的时候，瞬间高潮了，有木有？不过需要一些汇编语言、操作系统、计算机组成原理的的基础，知道那几个寄存器是干什么的，要知道计算机的流水线指令工作机制，保护/恢复现场等概念。三个回复者都涉及到了操作系统中虚拟内存；在比较速度的时候，大家一定要在脑中对“局部性原理”和计算机高速缓存有一个概念。</p>
-<p>如果你把这篇文章看懂了，我相信你收获的不只是堆和栈，你会理解的更多！</p>
-<p>兴奋之余，有几点还是要强调的，翻译没有逐字逐词翻译，大部分是通过我个人的知识积累和对回帖者的意图揣测而来的。请大家不要咬文嚼字，逐个推敲，我们的目的在于技术交流，不是么？达到这一目的就够了。</p>
-<p>下面是一些不确定点:</p>
-<p>1. 我没有听过 bookkeeping data 这种说法，故没有翻译。从上下文理解来看，可以想成是用来寄存器值？函数参数？返回地址？如果有了解具体含义的朋友，烦请告知。</p>
-<p>2. 栈和堆栈是一回事，英文表达是 stack，堆是 heap。</p>
-<p>3. 调用栈的概念，我是第一次听说，不太熟悉。大家可以去查查资料研究一下。</p>
-<p>以上，送给大家，本文结束。<br>
-————————————————</p>
-]]></content>
     </entry>
     <entry>
         <title type="html"><![CDATA[苹果设备和 mac电脑闪连]]></title>
@@ -389,14 +37,6 @@ pBuffer = new char[500];</p>
         <link href="https://wukongun.github.io/post/ping-guo-she-bei-he-mac-dian-nao-shan-lian/">
         </link>
         <updated>2017-03-15T07:45:35.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="iphone连接mac充电或者调试的时候-总是闪断-总结下这个问题">iPhone连接mac充电或者调试的时候 总是闪断 总结下这个问题</h3>
-<ol>
-<li>首先拔插数据线 看情况有无好转 接口内是否干净 有无杂物</li>
-<li>另外就是 电脑的usb电压不足 拔掉usb设备 关掉usb进程 重新连接usb设备 一般会解决闪连的问题<br>
-<code>sudo killall -STOP -c usbd</code></li>
-<li>如果还不行可以尝试换数据线 重复上面的方法</li>
-</ol>
-]]></content>
     </entry>
     <entry>
         <title type="html"><![CDATA[C++ lambda表达式]]></title>
@@ -404,21 +44,6 @@ pBuffer = new char[500];</p>
         <link href="https://wukongun.github.io/post/c-lambda-biao-da-shi/">
         </link>
         <updated>2015-07-14T13:09:03.000Z</updated>
-        <content type="html"><![CDATA[<p><strong>C++ 11 中的Lambda表达式用于定义并创建匿名的函数对象，以简化编程工作。</strong><br>
-<code>auto fun1 = [&amp;](int v){ cout &lt;&lt; v + x + this-&gt;num &lt;&lt; endl; x = 3; };</code><br>
-可以看到一个lambda表达式可以分为5个部分</p>
-<blockquote>
-<p>[函数对象参数]、(操作符重载函数参数)、mutable或exception声明、-&gt;返回值类型、{ 函数体 }</p>
-</blockquote>
-<ul>
-<li>函数对象参数只能使用那些到定义Lambda为止时Lambda所在作用范围内可见的局部变量（包括Lambda所在类的this）。函数对象参数有几种形式 这里不展开说了 感兴趣的可以去找一下</li>
-<li>(操作符重载函数参数)，标识重载的()操作符的参数，没有参数时，这部分可以省略。参数可以通过按值（如：(a, b)）和按引用（如：(&amp;a, &amp;b)）两种方式进行传递。</li>
-<li>mutable或exception声明，这部分可以省略。按值传递函数对象参数时，加上mutable修饰符后，可以修改按值传递进来的拷贝（注意是能修改拷贝，而不是值本身）。<br>
-exception声明用于指定函数抛出的异常，如抛出整数类型的异常，可以使用throw(int)。</li>
-<li>-&gt;返回值类型，标识函数返回值的类型，当返回值为void，或者函数体中只有一处return的地方（此时编译器可以自动推断出返回值类型）时，这部分可以省略。</li>
-<li>{ 函数体 }，标识函数的实现，这部分不能省略，但函数体可以为空。</li>
-</ul>
-]]></content>
     </entry>
     <entry>
         <title type="html"><![CDATA[开源协议]]></title>
@@ -426,10 +51,6 @@ exception声明用于指定函数抛出的异常，如抛出整数类型的异�
         <link href="https://wukongun.github.io/post/kai-yuan-xie-yi/">
         </link>
         <updated>2015-05-13T02:25:49.000Z</updated>
-        <content type="html"><![CDATA[<!-- more -->
-<h2 id="开源协议的使用-可以看下图-具体协议需要哪些约束">开源协议的使用 可以看下图 具体协议需要哪些约束</h2>
-<figure data-type="image" tabindex="1"><img src="https://wukongun.github.io/post-images/1590460057155.png" alt="" loading="lazy"></figure>
-]]></content>
     </entry>
     <entry>
         <title type="html"><![CDATA[iOS应⽤检查更新的方法 附代码]]></title>
@@ -437,35 +58,6 @@ exception声明用于指定函数抛出的异常，如抛出整数类型的异�
         <link href="https://wukongun.github.io/post/yingyongjianchagengxin/">
         </link>
         <updated>2014-07-07T02:52:20.000Z</updated>
-        <content type="html"><![CDATA[<p>虽然App Store能够提醒⽤用户软件更新，但很多⽤用户不会主动去更新⼀一⼤大堆的软件(我机器上待更新的 软件在100个左右)。如果在软件开启时提醒⽤用户更新 或者 更多中设置“检查更新”项，效果会好很多。 通常的做法是在⾃自⼰己的服务器上记录最新版本号，从iOS客户端请求，与本地版本号⽐比较，不同则提⽰示更 新。这种做法简单，缺点是需要单独的服务器⽀支持。 通过查阅相关⽂文章，找到了如下⽅方法，与上述⽅方法类似，不过不需要另外的服务器⽀支持。此为检查更新的最 优⽅方法。</p>
-<pre><code class="language-c++">NSString *version = @&quot;&quot;;
-NSURL *url = [NSURL URLWithString:@&quot;http://itunes.apple.com/lookup?id=954270&quot;]; versionRequest = [ASIFormDataRequest requestWithURL:url];
-[versionRequest setRequestMethod:@&quot;GET&quot;];
-[versionRequest setDelegate:self];
-[versionRequest setTimeOutSeconds:150];
-[versionRequest addRequestHeader:@&quot;Content-Type&quot; value:@&quot;application/json&quot;]; [versionRequest startSynchronous];
-//Response string of our REST call
-NSString* jsonResponseString = [versionRequest responseString];
-NSDictionary *loginAuthenticationResponse = [jsonResponseString objectFromJSONString]; NSArray *configData = [loginAuthenticationResponse valueForKey:@&quot;results&quot;];
-for (id config in configData)
-{
-version = [config valueForKey:@&quot;version&quot;]; }
-//Check your version with the version in app store
-if (![version isEqualToString:[itsUserDefaults objectForKey:@&quot;version&quot;]]) {
-ProAlertView *createUserResponseAlert = [[ProAlertView alloc] initWithTitle:@&quot;New Version!!&quot; message: @&quot;A new v ersion of app is available to download&quot; delegate:self cancelButtonTitle:@&quot;Cancel&quot; otherButtonTitles: @&quot;Download&quot;, nil ];
-[createUserResponseAlert show];
-[createUserResponseAlert release]; }
-</code></pre>
-<pre><code class="language-objective-c"> (void)alertView:(UIAlertView *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex { // the user clicked one of the OK/Cancel buttons
-if (buttonIndex == 1)
-{
-NSString *iTunesLink = @&quot;itms-apps://phobos.apple.com/WebObjects/MZStore.woa/wa/viewSoftwareUpdate?id =&lt;appid&gt;&amp;mt=8&quot;;
-[[UIApplication sharedApplication] openURL:[NSURL URLWithString:iTunesLink]]; }
-}
-</code></pre>
-<p>请求http://itunes.apple.com/lookup?id=954270返回的数据给出的version为2.3, 与本地客户端版本号⽐比较，<br>
-即可判断有⽆无更新。</p>
-]]></content>
     </entry>
     <entry>
         <title type="html"><![CDATA[iOS sdk的 md5 算法]]></title>
@@ -473,19 +65,5 @@ NSString *iTunesLink = @&quot;itms-apps://phobos.apple.com/WebObjects/MZStore.wo
         <link href="https://wukongun.github.io/post/ios-sdk-de-md5-suan-fa/">
         </link>
         <updated>2012-11-07T05:58:32.000Z</updated>
-        <content type="html"><![CDATA[<pre><code class="language-c++">#import &lt;CommonCrypto/CommonDigest.h&gt;
-+ (NSString *)md5HexDigest:(NSString*)input {
-const char* str = [input UTF8String];
-unsigned char result[CC_MD5_DIGEST_LENGTH];
-CC_MD5(str, strlen(str), result);
-NSMutableString *ret = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH*2];//
-for(int i = 0; i&lt;CC_MD5_DIGEST_LENGTH; i++) {
-//    [ret appendFormat:@&quot;%02x&quot;,result[i]]; 大写
-    [ret appendFormat:@&quot;%x&quot;,result[i]]; //小写
-}
-    return ret;
-}
-</code></pre>
-]]></content>
     </entry>
 </feed>
