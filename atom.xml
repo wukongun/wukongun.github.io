@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>Andy</title>
-    <updated>2020-06-03T03:00:11.342Z</updated>
+    <updated>2020-06-03T06:04:25.531Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -196,7 +196,10 @@ static void grow_refs_and_insert(weak_entry_t *entry,
         <link href="https://wukongun.github.io/post/weak_table_t-insert-referent-remove/">
         </link>
         <updated>2019-02-13T13:51:44.000Z</updated>
+        <summary type="html"><![CDATA[<h2 id="add-new_entry-to-the-objects-table-of-weak-references">Add new_entry to the object's table of weak references.</h2>
+]]></summary>
         <content type="html"><![CDATA[<h2 id="add-new_entry-to-the-objects-table-of-weak-references">Add new_entry to the object's table of weak references.</h2>
+<!-- more -->
 <pre><code class="language-c++">/** 
  * Add new_entry to the object's table of weak references.
  * Does not check whether the referent is already in the table.
