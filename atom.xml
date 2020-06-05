@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>Andy</title>
-    <updated>2020-06-03T06:28:26.903Z</updated>
+    <updated>2020-06-05T11:57:29.355Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -12,6 +12,19 @@
     <logo>https://wukongun.github.io/images/avatar.png</logo>
     <icon>https://wukongun.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Andy</rights>
+    <entry>
+        <title type="html"><![CDATA[梦境和现实]]></title>
+        <id>https://wukongun.github.io/post/meng-jing-he-xian-shi/</id>
+        <link href="https://wukongun.github.io/post/meng-jing-he-xian-shi/">
+        </link>
+        <updated>2020-06-05T11:51:49.000Z</updated>
+        <summary type="html"><![CDATA[<p>盗梦空间中有个设定 局中人会很难区分梦境和现实 区分的方法有 自己的图腾 陀螺就是主角的图腾</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>盗梦空间中有个设定 局中人会很难区分梦境和现实 区分的方法有 自己的图腾 陀螺就是主角的图腾</p>
+<!-- more -->
+<p>有一刹那会怀疑是否自己还生活在现实，会怀疑自己的目标和身边一切，是否还有意义，但最后总是会收心，继续生活工作</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[weak_entry_t数据结构分析]]></title>
         <id>https://wukongun.github.io/post/weak_entry_t-shu-ju-jie-gou-fen-xi/</id>
