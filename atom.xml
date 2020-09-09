@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>Andy</title>
-    <updated>2020-09-08T05:45:57.684Z</updated>
+    <updated>2020-09-09T03:43:31.720Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -297,6 +297,15 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
     weak_compact_maybe(weak_table);
 }
 </code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[https 验证流程]]></title>
+        <id>https://wukongun.github.io/post/https-yan-zheng-liu-cheng/</id>
+        <link href="https://wukongun.github.io/post/https-yan-zheng-liu-cheng/">
+        </link>
+        <updated>2018-08-02T03:38:06.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="https">https</h3>
 ]]></content>
     </entry>
     <entry>
