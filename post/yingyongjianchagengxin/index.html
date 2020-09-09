@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1599623327251">
+<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1599626038634">
 <link rel="stylesheet" href="https://wukongun.github.io/styles/main.css">
 
 
@@ -28,7 +28,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://wukongun.github.io">
-        <img src="https://wukongun.github.io/images/avatar.png?v=1599623327251" class="site-logo">
+        <img src="https://wukongun.github.io/images/avatar.png?v=1599626038634" class="site-logo">
         <h1 class="site-title">Andy</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -102,7 +102,7 @@
             <div class="post-content" v-pre>
               <p>虽然App Store能够提醒⽤用户软件更新，但很多⽤用户不会主动去更新⼀一⼤大堆的软件(我机器上待更新的 软件在100个左右)。如果在软件开启时提醒⽤用户更新 或者 更多中设置“检查更新”项，效果会好很多。 通常的做法是在⾃自⼰己的服务器上记录最新版本号，从iOS客户端请求，与本地版本号⽐比较，不同则提⽰示更 新。这种做法简单，缺点是需要单独的服务器⽀支持。 通过查阅相关⽂文章，找到了如下⽅方法，与上述⽅方法类似，不过不需要另外的服务器⽀支持。此为检查更新的最 优⽅方法。</p>
 <pre><code class="language-c++">NSString *version = @&quot;&quot;;
-NSURL *url = [NSURL URLWithString:@&quot;http://itunes.apple.com/lookup?id=954270&quot;]; versionRequest = [ASIFormDataRequest requestWithURL:url];
+NSURL *url = [NSURL URLWithString:@&quot;https://itunes.apple.com/lookup?id=954270&quot;]; versionRequest = [ASIFormDataRequest requestWithURL:url];
 [versionRequest setRequestMethod:@&quot;GET&quot;];
 [versionRequest setDelegate:self];
 [versionRequest setTimeOutSeconds:150];
@@ -126,7 +126,7 @@ NSString *iTunesLink = @&quot;itms-apps://phobos.apple.com/WebObjects/MZStore.wo
 [[UIApplication sharedApplication] openURL:[NSURL URLWithString:iTunesLink]]; }
 }
 </code></pre>
-<p>请求http://itunes.apple.com/lookup?id=954270返回的数据给出的version为2.3, 与本地客户端版本号⽐比较，<br>
+<p>请求https://itunes.apple.com/lookup?id=954270返回的数据给出的version为2.3, 与本地客户端版本号⽐比较，<br>
 即可判断有⽆无更新。</p>
 
             </div>
