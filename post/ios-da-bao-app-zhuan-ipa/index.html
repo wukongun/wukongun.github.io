@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>苹果设备和 mac电脑闪连 | Andy</title>
+<title>ios打包.app转.ipa | Andy</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,12 +18,12 @@
 
 
 
-    <meta name="description" content="iPhone连接mac充电或者调试的时候 总是闪断 总结下这个问题
+    <meta name="description" content="方法有很多种我这里只说下 自己比较常用的一种
 
-首先拔插数据线 看情况有无好转 接口内是否干净 有无杂物
-另外就是 电脑的usb电压不足 拔掉usb设备 关掉usb进程 重新连接usb设备 一般会解决闪连的问题
-sud..." />
-    <meta name="keywords" content="mac,技术" />
+新建“Payload”文件夹，注意名字要一字不差；
+将你的.app包放到Payload中，注意app的名字不做任何更改，就用xcode生成的app名称；
+在Payload文件夹上右键压缩成zi..." />
+    <meta name="keywords" content="" />
   </head>
   <body>
     <div id="app" class="main">
@@ -99,38 +99,25 @@ sud..." />
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">苹果设备和 mac电脑闪连</h2>
-            <div class="post-date">2017-03-15</div>
+            <h2 class="post-title">ios打包.app转.ipa</h2>
+            <div class="post-date">2018-07-14</div>
             
             <div class="post-content" v-pre>
-              <h3 id="iphone连接mac充电或者调试的时候-总是闪断-总结下这个问题">iPhone连接mac充电或者调试的时候 总是闪断 总结下这个问题</h3>
+              <p>方法有很多种我这里只说下 自己比较常用的一种</p>
 <ol>
-<li>首先拔插数据线 看情况有无好转 接口内是否干净 有无杂物</li>
-<li>另外就是 电脑的usb电压不足 拔掉usb设备 关掉usb进程 重新连接usb设备 一般会解决闪连的问题<br>
-<code>sudo killall -STOP -c usbd</code></li>
-<li>如果还不行可以尝试换数据线 重复上面的方法</li>
+<li>新建“Payload”文件夹，注意名字要一字不差；</li>
+<li>将你的.app包放到Payload中，注意app的名字不做任何更改，就用xcode生成的app名称；</li>
+<li>在Payload文件夹上右键压缩成zip，然后将生成的.zip文件后缀改成.ipa即可</li>
 </ol>
 
             </div>
             
-              <div class="tag-container">
-                
-                  <a href="https://wukongun.github.io/tag/8gfyM-Vaw/" class="tag">
-                    mac
-                  </a>
-                
-                  <a href="https://wukongun.github.io/tag/CUSDytWuU/" class="tag">
-                    技术
-                  </a>
-                
-              </div>
-            
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://wukongun.github.io/post/c-lambda-biao-da-shi/">
+                <a href="https://wukongun.github.io/post/ji-suan-ji-zhong-de-dui-he-he-zhan-wu-li-nei-cun-shang-de-jie-shi/">
                   <h3 class="post-title">
-                    C++ lambda表达式
+                    计算机中的堆和和栈（物理内存上的解释）
                   </h3>
                 </a>
               </div>

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>Andy</title>
-    <updated>2020-09-09T09:03:35.103Z</updated>
+    <updated>2020-09-14T07:32:24.788Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -308,6 +308,20 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
 ]]></content>
     </entry>
     <entry>
+        <title type="html"><![CDATA[ios打包.app转.ipa]]></title>
+        <id>https://wukongun.github.io/post/ios-da-bao-app-zhuan-ipa/</id>
+        <link href="https://wukongun.github.io/post/ios-da-bao-app-zhuan-ipa/">
+        </link>
+        <updated>2018-07-14T07:30:09.000Z</updated>
+        <content type="html"><![CDATA[<p>方法有很多种我这里只说下 自己比较常用的一种</p>
+<ol>
+<li>新建“Payload”文件夹，注意名字要一字不差；</li>
+<li>将你的.app包放到Payload中，注意app的名字不做任何更改，就用xcode生成的app名称；</li>
+<li>在Payload文件夹上右键压缩成zip，然后将生成的.zip文件后缀改成.ipa即可</li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[计算机中的堆和和栈（物理内存上的解释）]]></title>
         <id>https://wukongun.github.io/post/ji-suan-ji-zhong-de-dui-he-he-zhan-wu-li-nei-cun-shang-de-jie-shi/</id>
         <link href="https://wukongun.github.io/post/ji-suan-ji-zhong-de-dui-he-he-zhan-wu-li-nei-cun-shang-de-jie-shi/">
@@ -494,27 +508,6 @@ NSString *iTunesLink = @&quot;itms-apps://phobos.apple.com/WebObjects/MZStore.wo
 </code></pre>
 <p>请求https://itunes.apple.com/lookup?id=954270返回的数据给出的version为2.3, 与本地客户端版本号⽐比较，<br>
 即可判断有⽆无更新。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[iOS sdk的 md5 算法]]></title>
-        <id>https://wukongun.github.io/post/ios-sdk-de-md5-suan-fa/</id>
-        <link href="https://wukongun.github.io/post/ios-sdk-de-md5-suan-fa/">
-        </link>
-        <updated>2012-11-07T05:58:32.000Z</updated>
-        <content type="html"><![CDATA[<pre><code class="language-c++">#import &lt;CommonCrypto/CommonDigest.h&gt;
-+ (NSString *)md5HexDigest:(NSString*)input {
-const char* str = [input UTF8String];
-unsigned char result[CC_MD5_DIGEST_LENGTH];
-CC_MD5(str, strlen(str), result);
-NSMutableString *ret = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH*2];//
-for(int i = 0; i&lt;CC_MD5_DIGEST_LENGTH; i++) {
-//    [ret appendFormat:@&quot;%02x&quot;,result[i]]; 大写
-    [ret appendFormat:@&quot;%x&quot;,result[i]]; //小写
-}
-    return ret;
-}
-</code></pre>
 ]]></content>
     </entry>
 </feed>
