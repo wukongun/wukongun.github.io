@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>iOS 14 关于IDFA 权限的申请及其变化 | Andy</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1600234541433">
+<link rel="stylesheet" href="https://wukongun.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="2020年09月03日
+目前苹果已发出通知，关于idfa权限问题将会在明年才开始实行
+
+在 Apple，我们认为隐私是一项基本人权。正如在 WWDC20 上所宣布的，App Store 产品页面将包含一个新的隐私信息部分，帮助用户了解 ap..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://wukongun.github.io">
+        <img src="https://wukongun.github.io/images/avatar.png?v=1600234541433" class="site-logo">
+        <h1 class="site-title">Andy</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://wukongun.github.io" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/tag/CUSDytWuU/" class="site-nav">
+            技术
+          </a>
+        
+      
+        
+          <a href="/tag/30I54xNlw" class="site-nav">
+            生活
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于我
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/wukongun" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记录点滴
+
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/wukongun" target="_blank">Andy</a> | <a class="rss" href="https://wukongun.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">iOS 14 关于IDFA 权限的申请及其变化</h2>
+            <div class="post-date">2020-09-16</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="2020年09月03日">2020年09月03日</h2>
+<h3 id="目前苹果已发出通知关于idfa权限问题将会在明年才开始实行">目前苹果已发出通知，关于idfa权限问题将会在明年才开始实行</h3>
+<blockquote>
+<p>在 Apple，我们认为隐私是一项基本人权。正如在 WWDC20 上所宣布的，App Store 产品页面将包含一个新的隐私信息部分，帮助用户了解 app 的隐私保护做法。今天我们将为开发者发布更多详情，列明新的隐私部分所涵盖的内容。此功能将在年底之前向用户推出。而在下个月底前，您将能够通过 App Store Connect 提交相关信息，为其做好准备。</p>
+</blockquote>
+<blockquote>
+<p>此外，在 iOS 14、iPadOS 14 和 Apple tvOS 14 上，您需要征得用户的许可，才能在其他公司所拥有的 app 和网站上跟踪用户，或访问其设备的广告标识符。我们致力于确保用户拥有是否接受 app 跟踪的选择权。为让开发者有时间进行必要的更改，app 需要获得跟踪用户许可的要求将从明年年初开始实行。更多相关信息，包括 App Store 审核指南的更新，将在今年秋天发布。</p>
+</blockquote>
+<h2 id="2020年08月17日">2020年08月17日</h2>
+<h3 id="测试发现如果将app追踪的总开关关闭的话新安装的app就算是调用申请idfa权限的方法系统权限弹窗也不会弹出">测试发现，如果将APP追踪的总开关关闭的话，新安装的APP就算是调用申请idfa权限的方法，系统权限弹窗也不会弹出</h3>
+<figure data-type="image" tabindex="1"><img src="https://wukongun.github.io/post-images/1600234458156.png" alt="" loading="lazy"></figure>
+<p>idfa是App推广过程中识别用户的重要标识数据！在iOS 14 之后，关于idfa的获取发生了变化，将会对APP的推广产生较大的影响</p>
+<p>今天我们从代码层次来进行探讨 关于idfa的变动<br>
+在iOS14 之前我们都是这样获取的</p>
+<pre><code class="language-c">引入头文件
+#import &lt;AdSupport/AdSupport.h&gt;
+代码实现
+  if ([ASIdentifierManager.sharedManager isAdvertisingTrackingEnabled]) {
+        NSString * idfa = [ASIdentifierManager.sharedManager advertisingIdentifier].UUIDString;
+  }else {
+        NSLog(@&quot;用户开启了限制广告追踪&quot;);
+  }
+</code></pre>
+<p>但是在iOS14中，获取我们还是通过同样的方法进行获取，但是我们需要先进行权限的申请(和使用定位相机一样),如果不申请权限，获取到的idfa 将会是 0000-0.......000</p>
+<ul>
+<li>在info.plist 中添加 权限申请描述</li>
+</ul>
+<pre><code class="language-c">&lt;key&gt;NSUserTrackingUsageDescription&lt;/key&gt;
+&lt;string&gt;请允许获取并使用您的IDFA&lt;/string&gt;
+</code></pre>
+<ul>
+<li>进行权限判断，根据不同权限进行判断</li>
+</ul>
+<pre><code class="language-c">if (@available(iOS 14, *)) {
+        ATTrackingManagerAuthorizationStatus status = ATTrackingManager.trackingAuthorizationStatus;
+        switch (status) {
+            case ATTrackingManagerAuthorizationStatusDenied:
+                NSLog(@&quot;用户拒绝&quot;);
+                break;
+            case ATTrackingManagerAuthorizationStatusAuthorized:
+                NSLog(@&quot;用户允许&quot;);
+                break;
+            case ATTrackingManagerAuthorizationStatusNotDetermined:
+                NSLog(@&quot;用户为做选择或未弹窗&quot;);
+                break;
+            default:
+                break;
+        }
+    } else {
+        // Fallback on earlier versions
+       if ([ASIdentifierManager.sharedManager isAdvertisingTrackingEnabled]) {
+       }else {
+          NSLog(@&quot;用户开启了限制广告追踪&quot;);
+       }
+    }
+</code></pre>
+<ul>
+<li>申请权限</li>
+</ul>
+<pre><code class="language-c">if (@available(iOS 14, *)) {
+        [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+            NSLog(@&quot;app追踪权限：%lu&quot;,(unsigned long)status);
+        }];
+     } else {
+        // Fallback on earlier versions
+     }
+</code></pre>
+<ul>
+<li>获取idfa</li>
+</ul>
+<pre><code class="language-c">NSString * idfa = [ASIdentifierManager.sharedManager advertisingIdentifier].UUIDString;
+</code></pre>
+<h3 id="附件">附件</h3>
+<p><img src="https://wukongun.github.io/post-images/1600234438041.jpg" alt="" loading="lazy"><br>
+<img src="https://wukongun.github.io/post-images/1600234445888.png" alt="" loading="lazy"><br>
+原文链接: <a href="https://www.jianshu.com/p/b4df139e959d">https://www.jianshu.com/p/b4df139e959d</a></p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://wukongun.github.io/post/meng-jing-he-xian-shi/">
+                  <h3 class="post-title">
+                    梦境和现实的图腾
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>
