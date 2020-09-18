@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>Andy</title>
-    <updated>2020-09-16T05:35:45.959Z</updated>
+    <updated>2020-09-18T08:51:40.332Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -11,6 +11,20 @@
     <logo>https://wukongun.github.io/images/avatar.png</logo>
     <icon>https://wukongun.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Andy</rights>
+    <entry>
+        <title type="html"><![CDATA[xcode 12 报错 'MASConstraint' defined here has different definitions in different modules;]]></title>
+        <id>https://wukongun.github.io/post/xcode-12-bao-cuo-masconstraint-defined-here-has-different-definitions-in-different-modules/</id>
+        <link href="https://wukongun.github.io/post/xcode-12-bao-cuo-masconstraint-defined-here-has-different-definitions-in-different-modules/">
+        </link>
+        <updated>2020-09-18T08:46:41.000Z</updated>
+        <content type="html"><![CDATA[<p>'MASConstraint' defined here has different definitions in different modules;</p>
+<p>类似错误 可以通过清理缓存解决</p>
+<ol>
+<li>命令<br>
+<code>xcodebuild clean</code> 清理缓存 /在对应工程目录下执行命令</li>
+</ol>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[iOS 14 关于IDFA 权限的申请及其变化]]></title>
         <id>https://wukongun.github.io/post/ios-14-guan-yu-idfa-quan-xian-de-shen-qing-ji-qi-bian-hua/</id>
@@ -383,6 +397,69 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
 ]]></content>
     </entry>
     <entry>
+        <title type="html"><![CDATA[iOS 新手引导页图片适配及其尺寸]]></title>
+        <id>https://wukongun.github.io/post/ios-xin-shou-yin-dao-ye-tu-pian-gua-pei-ji-qi-chi-cun/</id>
+        <link href="https://wukongun.github.io/post/ios-xin-shou-yin-dao-ye-tu-pian-gua-pei-ji-qi-chi-cun/">
+        </link>
+        <updated>2018-09-05T08:45:14.000Z</updated>
+        <content type="html"><![CDATA[<p>使用Assets.xcassets来管理引导页图片，将指定分辨率的图片放入指定的位置，使用时只需要拿到图片名，图片会根据分辨率自动选取匹配的图片 有点像@2x @3x图片自动管理机制<br>
+具体实现有以下几个步骤：<br>
+1.创建一个LaunchImage类型的图片集合（右边工具栏改你只要的尺寸大小，适配横屏竖屏iOS7之前等尺寸）<br>
+2.将创建的LaunchImage.launchimage从命名为后缀名为.imageset的图片集合introductoryPage1.imageset<br>
+3.根据分辨率将指定图片拖入到指定位置<br>
+4.如有多张图片引导页，可以使用同样方法创建多个introductoryPage2.imageset，introductoryPage3.imageset，introductoryPage4.imageset等</p>
+<p>目前主流适配的设备尺寸</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">尺寸</th>
+<th style="text-align:center">分辨率</th>
+<th style="text-align:center">@</th>
+<th style="text-align:center">型号</th>
+<th style="text-align:center">对应设备</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">4.7''</td>
+<td style="text-align:center">750×1334</td>
+<td style="text-align:center">@2x</td>
+<td style="text-align:center">Retina 4.7''</td>
+<td style="text-align:center">iPhone6/iPhone6s/iPhone7/iPhone7s/iPhone8/iPhone8s</td>
+</tr>
+<tr>
+<td style="text-align:center">5.5''</td>
+<td style="text-align:center">1242×2208</td>
+<td style="text-align:center">@3x</td>
+<td style="text-align:center">Retina 5.5''</td>
+<td style="text-align:center">iPhone6P/iPhone7P/iPhone8P</td>
+</tr>
+<tr>
+<td style="text-align:center">5.8''</td>
+<td style="text-align:center">1125×2436</td>
+<td style="text-align:center">@3x</td>
+<td style="text-align:center">iPhone X/iPhone XS</td>
+<td style="text-align:center">iPhoneX/iPhoneXs</td>
+</tr>
+<tr>
+<td style="text-align:center">6.1''</td>
+<td style="text-align:center">828x1792</td>
+<td style="text-align:center">@2x</td>
+<td style="text-align:center">iPhoneXR</td>
+<td style="text-align:center">iPhoneXR</td>
+</tr>
+<tr>
+<td style="text-align:center">6.5''</td>
+<td style="text-align:center">1242x2688</td>
+<td style="text-align:center">@3x</td>
+<td style="text-align:center">iPhoneX Max</td>
+<td style="text-align:center">iPhoneX Max</td>
+</tr>
+</tbody>
+</table>
+]]></content>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[https 验证流程]]></title>
         <id>https://wukongun.github.io/post/https-yan-zheng-liu-cheng/</id>
         <link href="https://wukongun.github.io/post/https-yan-zheng-liu-cheng/">
@@ -523,39 +600,6 @@ pBuffer = new char[500];</p>
 <code>sudo killall -STOP -c usbd</code></li>
 <li>如果还不行可以尝试换数据线 重复上面的方法</li>
 </ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[C++ lambda表达式]]></title>
-        <id>https://wukongun.github.io/post/c-lambda-biao-da-shi/</id>
-        <link href="https://wukongun.github.io/post/c-lambda-biao-da-shi/">
-        </link>
-        <updated>2015-07-14T13:09:03.000Z</updated>
-        <content type="html"><![CDATA[<p><strong>C++ 11 中的Lambda表达式用于定义并创建匿名的函数对象，以简化编程工作。</strong><br>
-<code>auto fun1 = [&amp;](int v){ cout &lt;&lt; v + x + this-&gt;num &lt;&lt; endl; x = 3; };</code><br>
-可以看到一个lambda表达式可以分为5个部分</p>
-<blockquote>
-<p>[函数对象参数]、(操作符重载函数参数)、mutable或exception声明、-&gt;返回值类型、{ 函数体 }</p>
-</blockquote>
-<ul>
-<li>函数对象参数只能使用那些到定义Lambda为止时Lambda所在作用范围内可见的局部变量（包括Lambda所在类的this）。函数对象参数有几种形式 这里不展开说了 感兴趣的可以去找一下</li>
-<li>(操作符重载函数参数)，标识重载的()操作符的参数，没有参数时，这部分可以省略。参数可以通过按值（如：(a, b)）和按引用（如：(&amp;a, &amp;b)）两种方式进行传递。</li>
-<li>mutable或exception声明，这部分可以省略。按值传递函数对象参数时，加上mutable修饰符后，可以修改按值传递进来的拷贝（注意是能修改拷贝，而不是值本身）。<br>
-exception声明用于指定函数抛出的异常，如抛出整数类型的异常，可以使用throw(int)。</li>
-<li>-&gt;返回值类型，标识函数返回值的类型，当返回值为void，或者函数体中只有一处return的地方（此时编译器可以自动推断出返回值类型）时，这部分可以省略。</li>
-<li>{ 函数体 }，标识函数的实现，这部分不能省略，但函数体可以为空。</li>
-</ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[开源协议]]></title>
-        <id>https://wukongun.github.io/post/kai-yuan-xie-yi/</id>
-        <link href="https://wukongun.github.io/post/kai-yuan-xie-yi/">
-        </link>
-        <updated>2015-05-13T02:25:49.000Z</updated>
-        <content type="html"><![CDATA[<!-- more -->
-<h2 id="开源协议的使用-可以看下图-具体协议需要哪些约束">开源协议的使用 可以看下图 具体协议需要哪些约束</h2>
-<figure data-type="image" tabindex="1"><img src="https://wukongun.github.io/post-images/1590460057155.png" alt="" loading="lazy"></figure>
 ]]></content>
     </entry>
 </feed>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>C++ lambda表达式 | Andy</title>
+<title>iOS 新手引导页图片适配及其尺寸 | Andy</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,9 +18,10 @@
 
 
 
-    <meta name="description" content="C++ 11 中的Lambda表达式用于定义并创建匿名的函数对象，以简化编程工作。
-auto fun1 = [&amp;](int v){ cout &lt;&lt; v + x + this-&gt;num &lt;&lt; endl; ..." />
-    <meta name="keywords" content="C++,技术" />
+    <meta name="description" content="使用Assets.xcassets来管理引导页图片，将指定分辨率的图片放入指定的位置，使用时只需要拿到图片名，图片会根据分辨率自动选取匹配的图片 有点像@2x @3x图片自动管理机制
+具体实现有以下几个步骤：
+1.创建一个LaunchIma..." />
+    <meta name="keywords" content="" />
   </head>
   <body>
     <div id="app" class="main">
@@ -96,45 +97,74 @@ auto fun1 = [&amp;](int v){ cout &lt;&lt; v + x + this-&gt;num &lt;&lt; endl; ..
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">C++ lambda表达式</h2>
-            <div class="post-date">2015-07-14</div>
+            <h2 class="post-title">iOS 新手引导页图片适配及其尺寸</h2>
+            <div class="post-date">2018-09-05</div>
             
             <div class="post-content" v-pre>
-              <p><strong>C++ 11 中的Lambda表达式用于定义并创建匿名的函数对象，以简化编程工作。</strong><br>
-<code>auto fun1 = [&amp;](int v){ cout &lt;&lt; v + x + this-&gt;num &lt;&lt; endl; x = 3; };</code><br>
-可以看到一个lambda表达式可以分为5个部分</p>
-<blockquote>
-<p>[函数对象参数]、(操作符重载函数参数)、mutable或exception声明、-&gt;返回值类型、{ 函数体 }</p>
-</blockquote>
-<ul>
-<li>函数对象参数只能使用那些到定义Lambda为止时Lambda所在作用范围内可见的局部变量（包括Lambda所在类的this）。函数对象参数有几种形式 这里不展开说了 感兴趣的可以去找一下</li>
-<li>(操作符重载函数参数)，标识重载的()操作符的参数，没有参数时，这部分可以省略。参数可以通过按值（如：(a, b)）和按引用（如：(&amp;a, &amp;b)）两种方式进行传递。</li>
-<li>mutable或exception声明，这部分可以省略。按值传递函数对象参数时，加上mutable修饰符后，可以修改按值传递进来的拷贝（注意是能修改拷贝，而不是值本身）。<br>
-exception声明用于指定函数抛出的异常，如抛出整数类型的异常，可以使用throw(int)。</li>
-<li>-&gt;返回值类型，标识函数返回值的类型，当返回值为void，或者函数体中只有一处return的地方（此时编译器可以自动推断出返回值类型）时，这部分可以省略。</li>
-<li>{ 函数体 }，标识函数的实现，这部分不能省略，但函数体可以为空。</li>
-</ul>
+              <p>使用Assets.xcassets来管理引导页图片，将指定分辨率的图片放入指定的位置，使用时只需要拿到图片名，图片会根据分辨率自动选取匹配的图片 有点像@2x @3x图片自动管理机制<br>
+具体实现有以下几个步骤：<br>
+1.创建一个LaunchImage类型的图片集合（右边工具栏改你只要的尺寸大小，适配横屏竖屏iOS7之前等尺寸）<br>
+2.将创建的LaunchImage.launchimage从命名为后缀名为.imageset的图片集合introductoryPage1.imageset<br>
+3.根据分辨率将指定图片拖入到指定位置<br>
+4.如有多张图片引导页，可以使用同样方法创建多个introductoryPage2.imageset，introductoryPage3.imageset，introductoryPage4.imageset等</p>
+<p>目前主流适配的设备尺寸</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">尺寸</th>
+<th style="text-align:center">分辨率</th>
+<th style="text-align:center">@</th>
+<th style="text-align:center">型号</th>
+<th style="text-align:center">对应设备</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">4.7''</td>
+<td style="text-align:center">750×1334</td>
+<td style="text-align:center">@2x</td>
+<td style="text-align:center">Retina 4.7''</td>
+<td style="text-align:center">iPhone6/iPhone6s/iPhone7/iPhone7s/iPhone8/iPhone8s</td>
+</tr>
+<tr>
+<td style="text-align:center">5.5''</td>
+<td style="text-align:center">1242×2208</td>
+<td style="text-align:center">@3x</td>
+<td style="text-align:center">Retina 5.5''</td>
+<td style="text-align:center">iPhone6P/iPhone7P/iPhone8P</td>
+</tr>
+<tr>
+<td style="text-align:center">5.8''</td>
+<td style="text-align:center">1125×2436</td>
+<td style="text-align:center">@3x</td>
+<td style="text-align:center">iPhone X/iPhone XS</td>
+<td style="text-align:center">iPhoneX/iPhoneXs</td>
+</tr>
+<tr>
+<td style="text-align:center">6.1''</td>
+<td style="text-align:center">828x1792</td>
+<td style="text-align:center">@2x</td>
+<td style="text-align:center">iPhoneXR</td>
+<td style="text-align:center">iPhoneXR</td>
+</tr>
+<tr>
+<td style="text-align:center">6.5''</td>
+<td style="text-align:center">1242x2688</td>
+<td style="text-align:center">@3x</td>
+<td style="text-align:center">iPhoneX Max</td>
+<td style="text-align:center">iPhoneX Max</td>
+</tr>
+</tbody>
+</table>
 
             </div>
-            
-              <div class="tag-container">
-                
-                  <a href="https://wukongun.github.io/tag/_hmHqlnuv/" class="tag">
-                    C++
-                  </a>
-                
-                  <a href="https://wukongun.github.io/tag/CUSDytWuU/" class="tag">
-                    技术
-                  </a>
-                
-              </div>
             
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://wukongun.github.io/post/kai-yuan-xie-yi/">
+                <a href="https://wukongun.github.io/post/https-yan-zheng-liu-cheng/">
                   <h3 class="post-title">
-                    开源协议
+                    https 验证流程
                   </h3>
                 </a>
               </div>
