@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>iOS 微信Universal Links 接入指南 | Andy</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1600945615411">
+<link rel="stylesheet" href="https://wukongun.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="什么是 Universal Links ?
+当用户点击一个 Universal Link 时，iOS 会直接将链接重定向到你的应用程序，而无需通过 Safari 或你的网站进行路由。另外，由于通用链接是标准的HTTP或HTTPS链接，一个U..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://wukongun.github.io">
+        <img src="https://wukongun.github.io/images/avatar.png?v=1600945615411" class="site-logo">
+        <h1 class="site-title">Andy</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://wukongun.github.io" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/tag/CUSDytWuU/" class="site-nav">
+            技术
+          </a>
+        
+      
+        
+          <a href="/tag/30I54xNlw" class="site-nav">
+            生活
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于我
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/wukongun" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记录点滴
+
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/wukongun" target="_blank">Andy</a> | <a class="rss" href="https://wukongun.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">iOS 微信Universal Links 接入指南</h2>
+            <div class="post-date">2020-09-24</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="什么是-universal-links">什么是 Universal Links ?</h2>
+<p>当用户点击一个 Universal Link 时，iOS 会直接将链接重定向到你的应用程序，而无需通过 Safari 或你的网站进行路由。另外，由于通用链接是标准的HTTP或HTTPS链接，一个URL同时适用于您的网站和应用程序。如果您的应用程序没有安装，系统将在Safari中打开URL，允许您的网站处理它。</p>
+<h2 id="universal-links-和-url-schemes-比较">Universal Links 和 URL Schemes 比较</h2>
+<p>还记得 URL Schemes 吗？iOS 系统中因 sandbox 机制的存在，应用之间互相访问只能通过一个叫 URL Schemes 的机制来完成。通过注册Scheme，自定义URL，来调起一个app，URL是自定义的，app可根据URL的内容来处理一些来自外部的请求。</p>
+<p>URL Schemes 是不安全的。苹果没有限制多个app可以注册同样的 Scheme 。2015年，乌云网公布一个漏洞，称未越狱的设备存在一个泄露支付宝账户密码的漏洞，其实就是劫持了支付宝的 URL Scheme 实现的。</p>
+<p>再来看看 Universal LInks。苹果这样描述它的安全性：“当安装了一个使用 Univesal Links 的应用程序时，iOS 会通过你网站上的苹果应用程序网站关联文件验证关联，从而消除了其他应用程序可能会申请你的 scheme 并重定向你的 url 的可能性。” 这样看来，Universal Links 确实解决了前面提到的 URL Schemes 的安全性问题。</p>
+<p>除此之外，URL Schemes 在调起 app 前，总是有弹框，让用户选择是否打开。而 Universal Links 则是直接调起 app。</p>
+<h2 id="如何支持-universal-links">如何支持 Universal Links ?</h2>
+<ol>
+<li>创建应用程序和网站之间的双向关联，并指定应用程序处理的 url。</li>
+</ol>
+<ul>
+<li>添加<code>Associated Domains Entitlement</code>到你的 app。每个 Target 的设置如下：
+<ol>
+<li>打开工程的 <code>Capabilities</code> 选项卡，添加 <code>Associated Domains</code></li>
+<li>在 Domains 列表中，点击 ’+‘ 按钮，新增一条</li>
+<li>修改刚才新增那条 domain ，格式如下：</li>
+</ol>
+</li>
+</ul>
+<p>&gt; applinks:&lt;域名&gt;[:端口号]</p>
+<p>例如：</p>
+<p>&gt; applinks:developer.apple.com</p>
+<ul>
+<li>创建一个名为<code>apple-app-site-association</code>的文件</li>
+<li>添加 <code>applinks</code> key 到 <code>apple-app-site-association</code> 文件中，格式如下：</li>
+</ul>
+<p>{<br>
+&quot;applinks&quot;: {<br>
+&quot;apps&quot;: [],<br>
+&quot;details&quot;: [{<br>
+&quot;appID&quot;: &quot;D3KQX62K1A.com.example.photoapp&quot;,<br>
+&quot;paths&quot;: [&quot;/albums&quot;]<br>
+},<br>
+{<br>
+&quot;appID&quot;: &quot;D3KQX62K1A.com.example.videoapp&quot;,<br>
+&quot;paths&quot;: [&quot;/videos&quot;]<br>
+}]<br>
+}<br>
+}</p>
+<p><code>applinks</code> 通用链接对象有两个属性：</p>
+<p><code>apps</code> 这个属性并不用于 Universal Links，但它必须出现，并设置为空数组。<br>
+<code>details</code> 数组可以定义多个能处理通用链接的 app<br>
+<code>appID</code> 定义了能处理通用链接的应用程序标识符，格式如下：</p>
+<p>&gt; &lt;Team Identifier&gt;.&lt;Bundle Identifier&gt;</p>
+<p><code>paths</code>数组定义了一组由应用程序去处理的路径。可使用* ?通配符以及NOT<br>
+根据 app 的业务场景，修改好这个文件即可。</p>
+<p>上传 <code>apple-app-site-association</code> 文件到你的网站上传的位置可以在网站根目录下，或者在<code>.well-known</code>目录下。<br>
+如果使用<code>.well-known</code>目录，则地址遵循以下格式：</p>
+<blockquote>
+<p>https://&lt;域名&gt;/.well-known/apple-app-site-association</p>
+</blockquote>
+<ol>
+<li>
+<ul>
+<li>必须使用https://和有效的证书来托管此文件，并且不使用任何重定向。</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>测试 Universal Link 是否可用备忘录里输入可以让 app 处理的 Universal Link 网址，例如 我配置的paths 是 <code>[&quot;*&quot;]</code> , 表示域名下的任意网址， 我在备忘录里输入 https://foobar.com/foo 然后点击，如果成功是会打开 app 的。</li>
+</ul>
+<ol start="2">
+<li>更新您的 AppDelegate，以响应iOS在 Universal Links 路由到您的应用程序时提供的 UserActivity 对象。当一个 Universal Link 被触发，iOS 会启动你的 app , 向它发送一个<code>NSUserActivity</code>对象。通过查询这个对象的属性，找到 app 是如何被启动的，以及决定要执行什么操作。</li>
+</ol>
+<p>示例</p>
+<p>func application(_ application: UIApplication,<br>
+continue userActivity: NSUserActivity,<br>
+restorationHandler: @escaping ([Any]?) -&gt; Void) -&gt; Bool<br>
+{<br>
+guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,<br>
+let incomingURL = userActivity.webpageURL,<br>
+let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true),<br>
+let path = components.path,<br>
+let params = components.queryItems else {<br>
+return false<br>
+}</p>
+<pre><code>print(&quot;path = (path)&quot;)
+
+if let albumName = params.first(where: { $0.name == &quot;albumname&quot; } )?.value,
+    let photoIndex = params.first(where: { $0.name == &quot;index&quot; })?.value {
+    
+    print(&quot;album = (albumName)&quot;)
+    print(&quot;photoIndex = (photoIndex)&quot;)
+    return true
+    
+} else {
+    print(&quot;Either album name or photo index missing&quot;)
+    return false
+}
+</code></pre>
+<p>}</p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://wukongun.github.io/post/ios-wei-xin-fen-xiang-hou-bu-fen-shou-ji-xian-shi-wei-yan-zheng-ying-yong/">
+                  <h3 class="post-title">
+                    iOS 微信分享后，部分手机显示未验证应用
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

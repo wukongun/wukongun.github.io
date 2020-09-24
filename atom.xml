@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>Andy</title>
-    <updated>2020-09-18T08:51:40.332Z</updated>
+    <updated>2020-09-24T11:06:57.483Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -11,6 +11,171 @@
     <logo>https://wukongun.github.io/images/avatar.png</logo>
     <icon>https://wukongun.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Andy</rights>
+    <entry>
+        <title type="html"><![CDATA[iOS 微信Universal Links 接入指南]]></title>
+        <id>https://wukongun.github.io/post/ios-wei-xin-universal-links-jie-ru-zhi-nan/</id>
+        <link href="https://wukongun.github.io/post/ios-wei-xin-universal-links-jie-ru-zhi-nan/">
+        </link>
+        <updated>2020-09-24T10:40:12.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="什么是-universal-links">什么是 Universal Links ?</h2>
+<p>当用户点击一个 Universal Link 时，iOS 会直接将链接重定向到你的应用程序，而无需通过 Safari 或你的网站进行路由。另外，由于通用链接是标准的HTTP或HTTPS链接，一个URL同时适用于您的网站和应用程序。如果您的应用程序没有安装，系统将在Safari中打开URL，允许您的网站处理它。</p>
+<h2 id="universal-links-和-url-schemes-比较">Universal Links 和 URL Schemes 比较</h2>
+<p>还记得 URL Schemes 吗？iOS 系统中因 sandbox 机制的存在，应用之间互相访问只能通过一个叫 URL Schemes 的机制来完成。通过注册Scheme，自定义URL，来调起一个app，URL是自定义的，app可根据URL的内容来处理一些来自外部的请求。</p>
+<p>URL Schemes 是不安全的。苹果没有限制多个app可以注册同样的 Scheme 。2015年，乌云网公布一个漏洞，称未越狱的设备存在一个泄露支付宝账户密码的漏洞，其实就是劫持了支付宝的 URL Scheme 实现的。</p>
+<p>再来看看 Universal LInks。苹果这样描述它的安全性：“当安装了一个使用 Univesal Links 的应用程序时，iOS 会通过你网站上的苹果应用程序网站关联文件验证关联，从而消除了其他应用程序可能会申请你的 scheme 并重定向你的 url 的可能性。” 这样看来，Universal Links 确实解决了前面提到的 URL Schemes 的安全性问题。</p>
+<p>除此之外，URL Schemes 在调起 app 前，总是有弹框，让用户选择是否打开。而 Universal Links 则是直接调起 app。</p>
+<h2 id="如何支持-universal-links">如何支持 Universal Links ?</h2>
+<ol>
+<li>创建应用程序和网站之间的双向关联，并指定应用程序处理的 url。</li>
+</ol>
+<ul>
+<li>添加<code>Associated Domains Entitlement</code>到你的 app。每个 Target 的设置如下：
+<ol>
+<li>打开工程的 <code>Capabilities</code> 选项卡，添加 <code>Associated Domains</code></li>
+<li>在 Domains 列表中，点击 ’+‘ 按钮，新增一条</li>
+<li>修改刚才新增那条 domain ，格式如下：</li>
+</ol>
+</li>
+</ul>
+<p>&gt; applinks:&lt;域名&gt;[:端口号]</p>
+<p>例如：</p>
+<p>&gt; applinks:developer.apple.com</p>
+<ul>
+<li>创建一个名为<code>apple-app-site-association</code>的文件</li>
+<li>添加 <code>applinks</code> key 到 <code>apple-app-site-association</code> 文件中，格式如下：</li>
+</ul>
+<p>{<br>
+&quot;applinks&quot;: {<br>
+&quot;apps&quot;: [],<br>
+&quot;details&quot;: [{<br>
+&quot;appID&quot;: &quot;D3KQX62K1A.com.example.photoapp&quot;,<br>
+&quot;paths&quot;: [&quot;/albums&quot;]<br>
+},<br>
+{<br>
+&quot;appID&quot;: &quot;D3KQX62K1A.com.example.videoapp&quot;,<br>
+&quot;paths&quot;: [&quot;/videos&quot;]<br>
+}]<br>
+}<br>
+}</p>
+<p><code>applinks</code> 通用链接对象有两个属性：</p>
+<p><code>apps</code> 这个属性并不用于 Universal Links，但它必须出现，并设置为空数组。<br>
+<code>details</code> 数组可以定义多个能处理通用链接的 app<br>
+<code>appID</code> 定义了能处理通用链接的应用程序标识符，格式如下：</p>
+<p>&gt; &lt;Team Identifier&gt;.&lt;Bundle Identifier&gt;</p>
+<p><code>paths</code>数组定义了一组由应用程序去处理的路径。可使用* ?通配符以及NOT<br>
+根据 app 的业务场景，修改好这个文件即可。</p>
+<p>上传 <code>apple-app-site-association</code> 文件到你的网站上传的位置可以在网站根目录下，或者在<code>.well-known</code>目录下。<br>
+如果使用<code>.well-known</code>目录，则地址遵循以下格式：</p>
+<blockquote>
+<p>https://&lt;域名&gt;/.well-known/apple-app-site-association</p>
+</blockquote>
+<ol>
+<li>
+<ul>
+<li>必须使用https://和有效的证书来托管此文件，并且不使用任何重定向。</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>测试 Universal Link 是否可用备忘录里输入可以让 app 处理的 Universal Link 网址，例如 我配置的paths 是 <code>[&quot;*&quot;]</code> , 表示域名下的任意网址， 我在备忘录里输入 https://foobar.com/foo 然后点击，如果成功是会打开 app 的。</li>
+</ul>
+<ol start="2">
+<li>更新您的 AppDelegate，以响应iOS在 Universal Links 路由到您的应用程序时提供的 UserActivity 对象。当一个 Universal Link 被触发，iOS 会启动你的 app , 向它发送一个<code>NSUserActivity</code>对象。通过查询这个对象的属性，找到 app 是如何被启动的，以及决定要执行什么操作。</li>
+</ol>
+<p>示例</p>
+<p>func application(_ application: UIApplication,<br>
+continue userActivity: NSUserActivity,<br>
+restorationHandler: @escaping ([Any]?) -&gt; Void) -&gt; Bool<br>
+{<br>
+guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,<br>
+let incomingURL = userActivity.webpageURL,<br>
+let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true),<br>
+let path = components.path,<br>
+let params = components.queryItems else {<br>
+return false<br>
+}</p>
+<pre><code>print(&quot;path = (path)&quot;)
+
+if let albumName = params.first(where: { $0.name == &quot;albumname&quot; } )?.value,
+    let photoIndex = params.first(where: { $0.name == &quot;index&quot; })?.value {
+    
+    print(&quot;album = (albumName)&quot;)
+    print(&quot;photoIndex = (photoIndex)&quot;)
+    return true
+    
+} else {
+    print(&quot;Either album name or photo index missing&quot;)
+    return false
+}
+</code></pre>
+<p>}</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[iOS 微信分享后，部分手机显示未验证应用]]></title>
+        <id>https://wukongun.github.io/post/ios-wei-xin-fen-xiang-hou-bu-fen-shou-ji-xian-shi-wei-yan-zheng-ying-yong/</id>
+        <link href="https://wukongun.github.io/post/ios-wei-xin-fen-xiang-hou-bu-fen-shou-ji-xian-shi-wei-yan-zheng-ying-yong/">
+        </link>
+        <updated>2020-09-24T10:20:09.000Z</updated>
+        <content type="html"><![CDATA[<p>最近我们的iOSApp微信分享，分享后会部分手机会出现未验证应用的情况，大大降低了用户的体验。注意事部分手机。经过查找发现是微信的问题，目前是灰度测试，后续如果不按照他们最新的对接可能全部分享都会显示未验证应用标识。中间也出现了些其他的小插曲，下边我们按照步骤依次来修改。<br>
+一、升级SDK版本<br>
+1.首先看下自己项目中微信分享是否是最新版本，不是的话需要先升级到<img src="https://wukongun.github.io/post-images/1600943220583.jpg" alt="" loading="lazy">最新的版本目前是1.8.7版本。<br>
+2.如果之前你应用间跳转用的是URL Schemes的跳转，那么在升级SDK后就不能使用此方式进行App内外跳转了，必须使用Universallink方式跳转</p>
+<p>二、生成和配置Universallink<br>
+这里可以自己生成Universallink，这里不做具体描述。因为我们用的是ShareSDK，它会提供自动生成Universallink。<br>
+1.打开MobTech，执行下图，完成ShareSDK的工作。</p>
+<p>2.配置关联微信开放平台的universallink。<br>
+【管理中心】-【移动应用】-【选择要配置的应用】-【开发信息修改】<br>
+3.如果需要QQ分享也需要到QQ开放平台QQ互联。<br>
+【应用管理】-【移动应用】-【查看】-【平台信息】-【修改】，修改内容跟微信平台几乎一致，跟着QQ要求添加所需内容在mob平台里查找。</p>
+<p>二、配置项目工程<br>
+1.苹果开发者中心找到对应的bundleID，修改打开【Associated Domains】选项。<br>
+<img src="https://wukongun.github.io/post-images/1600943438366.jpg" alt="" loading="lazy"><br>
+2.在Project中【Signing&amp;Capabilities】中添加【Associated Domains】<br>
+<img src="https://wukongun.github.io/post-images/1600943455902.jpg" alt="" loading="lazy"><br>
+3.pod更新到最新的SDK，我这里pod 'mob_sharesdk', '~&gt; 4.3.8',你也可以pod微信或者QQ的开放SDK。<br>
+4.plist文件中【LSApplicationQueriesSchemes】中添加微信对应的白名单。<br>
+<img src="https://wukongun.github.io/post-images/1600943484402.jpg" alt="" loading="lazy"></p>
+<p>三、代码</p>
+<pre><code class="language-Objective-c">- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+此方法中添加注册微信和QQ或者ShareSDK的配置。
+比如： [WXApi registerApp:wechat_appid universalLink:wechat_universalLink];
+函数检测：
+//在register之前打开log, 后续可以根据log排查问题
+[WXApi startLogByLevel:WXLogLevelDetail logBlock:^(NSString *log) {
+    NSLog(@&quot;WeChatSDK: %@&quot;, log);
+}];
+
+//务必在调用自检函数前注册
+[WXApi registerApp:APP_ID universalLink:UNIVERSAL_LINK];
+
+//调用自检函数
+[WXApi checkUniversalLinkReady:^(WXULCheckStep step, WXCheckULStepResult* result) {
+    NSLog(@&quot;WeixinSDK2：%@, %u, %@, %@&quot;, @(step), result.success, result.errorInfo, result.suggestion);
+}];
+</code></pre>
+<p>控制台输出</p>
+<pre><code class="language-Objective-c">2020-06-15 14:30:37.718227+0800 SXAutoStreets[10552:2910027] WXApiSDK2:0, 1, check passed,
+2020-06-15 14:30:37.718377+0800 SXAutoStreets[10552:2910027] WXApiSDK2:1, 1, check passed,
+2020-06-15 14:30:37.720022+0800 SXAutoStreets[10552:2910027] WXApiSDK2:2, 1, check passed,
+2020-06-15 14:30:37.780891+0800 SXAutoStreets[10552:2910027] WXApiSDK:wxlog:set property list
+2020-06-15 14:30:37.790073+0800 SXAutoStreets[10552:2910027] WXApiSDK2:3, 1, check passed,
+2020-06-15 14:30:38.390261+0800 SXAutoStreets[10552:2910027] WXApiSDK2:4, 1, check passed,
+2020-06-15 14:30:40.781874+0800 SXAutoStreets[10552:2910027] WXApiSDK2:5, 1, Universal Link check passed. The application is launched by WeChat via Universal Link,
+2020-06-15 14:30:40.781981+0800 SXAutoStreets[10552:2910027] WXApiSDK2:6, 1, All Check Passed!,
+</code></pre>
+<p>如果0-6共7个步骤全部输出check passed，代表正确，否则代表有问题，需要一一查找。具体可以<a href="https://docs.qq.com/doc/DZHNvSGJLS3pqbHNl">参考此流程</a>对照。<br>
+<a href="https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/iOS.html#jump">新版集成文档</a></p>
+<p>2.添加方法,该方法不添加会造成4之后流程不通过和支付流程出现问题。切记！！！</p>
+<pre><code class="language-Objective-c">-(BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray&lt;id&lt;UIUserActivityRestoring&gt;&gt; * _Nullable))restorationHandler
+{
+    return  [WXApi handleOpenUniversalLink:userActivity delegate:self];
+}
+</code></pre>
+<p>到此我们要做的事情就完成了，新版本放量上去让整体错误率下降到90%以下才会从未验证应用中移除。所以版本更新后，我们需要做的事情就是需要等几天了。</p>
+<p>感触：找微信开放平台是真的没人理，这么个事情也不提前发个重大公告。搞得脑袋大。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[xcode 12 报错 'MASConstraint' defined here has different definitions in different modules;]]></title>
         <id>https://wukongun.github.io/post/xcode-12-bao-cuo-masconstraint-defined-here-has-different-definitions-in-different-modules/</id>
@@ -119,6 +284,19 @@
 ]]></summary>
         <content type="html"><![CDATA[<p>盗梦空间中有个设定 剧中人会很难区分梦境和现实 他们区分的方法是 用自己的图腾 陀螺就是主角的图腾.</p>
 <!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[查看iPhone设备的 UDID]]></title>
+        <id>https://wukongun.github.io/post/cha-kan-iphone-she-bei-de-udid/</id>
+        <link href="https://wukongun.github.io/post/cha-kan-iphone-she-bei-de-udid/">
+        </link>
+        <updated>2019-09-24T09:48:35.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="苹果查看udid-itunes没改版之前-可以用itunes查看">苹果查看udid iTunes没改版之前 可以用itunes查看</h1>
+<ol>
+<li>现在可以通过扫码查看</li>
+<li>或者通过xcode 设备Summary中会显示UDID 标志是identity</li>
+</ol>
 ]]></content>
     </entry>
     <entry>
@@ -397,6 +575,25 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
 ]]></content>
     </entry>
     <entry>
+        <title type="html"><![CDATA[苹果企业开发者账号如何删除UDID]]></title>
+        <id>https://wukongun.github.io/post/ping-guo-qi-ye-kai-fa-zhe-zhang-hao-ru-he-shan-chu-udid/</id>
+        <link href="https://wukongun.github.io/post/ping-guo-qi-ye-kai-fa-zhe-zhang-hao-ru-he-shan-chu-udid/">
+        </link>
+        <updated>2018-09-24T09:53:03.000Z</updated>
+        <content type="html"><![CDATA[<ol>
+<li>点击左栏中的Device选项，如下图所示，再根据箭头指向点击 Edit 按钮进行编辑<br>
+<img src="https://wukongun.github.io/post-images/1600941197927.jpeg" alt="" loading="lazy"></li>
+<li>选中你所想要删除的设备，点击箭头所示的Disable按钮<br>
+<img src="https://wukongun.github.io/post-images/1600941209025.jpeg" alt="" loading="lazy"></li>
+<li>如下图所示会出现提示窗口，核对你想要删除的设备信息，确认无误后，点击红色按钮Disable进行删除<br>
+<img src="https://wukongun.github.io/post-images/1600941223930.jpeg" alt="" loading="lazy"></li>
+<li>严格意义上来讲，上述的删除其实是一种禁用，他只是将你选中的设备禁用了，效果跟删除没什么严格上的区别，该方式只是禁用设备UDID,苹果每年提供一次删除UDID的机会,只要到了设备重置的时间,此页面会出现设备删除的按钮,不到设备重置的时间,该按钮不显示。<br>
+由于该账号还没有到设备重置的时间,所以无法截图，但是其数据删除的时间会在首页的Membership一栏中找到，如下图所示。如果你想要彻底的将设备的UDID删除，只能等到设备重置日期才可以。<br>
+<img src="https://wukongun.github.io/post-images/1600941232114.jpeg" alt="" loading="lazy"></li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[iOS 新手引导页图片适配及其尺寸]]></title>
         <id>https://wukongun.github.io/post/ios-xin-shou-yin-dao-ye-tu-pian-gua-pei-ji-qi-chi-cun/</id>
         <link href="https://wukongun.github.io/post/ios-xin-shou-yin-dao-ye-tu-pian-gua-pei-ji-qi-chi-cun/">
@@ -457,149 +654,6 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
 </tr>
 </tbody>
 </table>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[https 验证流程]]></title>
-        <id>https://wukongun.github.io/post/https-yan-zheng-liu-cheng/</id>
-        <link href="https://wukongun.github.io/post/https-yan-zheng-liu-cheng/">
-        </link>
-        <updated>2018-08-02T03:38:06.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="https">https</h3>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[ios打包.app转.ipa]]></title>
-        <id>https://wukongun.github.io/post/ios-da-bao-app-zhuan-ipa/</id>
-        <link href="https://wukongun.github.io/post/ios-da-bao-app-zhuan-ipa/">
-        </link>
-        <updated>2018-07-14T07:30:09.000Z</updated>
-        <content type="html"><![CDATA[<p>方法有很多种我这里只说下 自己比较常用的一种</p>
-<ol>
-<li>新建“Payload”文件夹，注意名字要一字不差；</li>
-<li>将你的.app包放到Payload中，注意app的名字不做任何更改，就用xcode生成的app名称；</li>
-<li>在Payload文件夹上右键压缩成zip，然后将生成的.zip文件后缀改成.ipa即可</li>
-</ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[计算机中的堆和和栈（物理内存上的解释）]]></title>
-        <id>https://wukongun.github.io/post/ji-suan-ji-zhong-de-dui-he-he-zhan-wu-li-nei-cun-shang-de-jie-shi/</id>
-        <link href="https://wukongun.github.io/post/ji-suan-ji-zhong-de-dui-he-he-zhan-wu-li-nei-cun-shang-de-jie-shi/">
-        </link>
-        <updated>2017-07-21T07:45:43.000Z</updated>
-        <content type="html"><![CDATA[<p>原文链接：https://blog.csdn.net/bai___ddd/java/article/details/78631525</p>
-<p>编程语言书籍中经常解释值类型被创建在栈上，引用类型被创建在堆上，但是并没有本质上解释这堆和栈是什么。我仅有高级语言编程经验，没有看过对此更清晰的解释。我的意思是我理解什么是栈，但是它们到底是什么，在哪儿呢（站在实际的计算机物理内存的角度上看）？</p>
-<p>1. 在通常情况下由操作系统（OS）和语言的运行时（runtime）控制吗？</p>
-<p>2. 它们的作用范围是什么？</p>
-<p>3. 它们的大小由什么决定？</p>
-<p>4. 哪个更快？</p>
-<p>答案一</p>
-<p>栈是为执行线程留出的内存空间。当函数被调用的时候，栈顶为局部变量和一些 bookkeeping 数据预留块。当函数执行完毕，块就没有用了，可能在下次的函数调用的时候再被使用。栈通常用后进先出（LIFO）的方式预留空间；因此最近的保留块（reserved block）通常最先被释放。这么做可以使跟踪堆栈变的简单；从栈中释放块（free block）只不过是指针的偏移而已。</p>
-<p>堆（heap）是为动态分配预留的内存空间。和栈不一样，从堆上分配和重新分配块没有固定模式；你可以在任何时候分配和释放它。这样使得跟踪哪部分堆已经被分配和被释放变的异常复杂；有许多定制的堆分配策略用来为不同的使用模式下调整堆的性能。</p>
-<p>每一个线程都有一个栈，但是每一个应用程序通常都只有一个堆（尽管为不同类型分配内存使用多个堆的情况也是有的）。</p>
-<p>直接回答你的问题： 1. 当线程创建的时候，操作系统（OS）为每一个系统级（system-level）的线程分配栈。通常情况下，操作系统通过调用语言的运行时（runtime）去为应用程序分配堆。 2. 栈附属于线程，因此当线程结束时栈被回收。堆通常通过运行时在应用程序启动时被分配，当应用程序（进程）退出时被回收。 3. 当线程被创建的时候，设置栈的大小。在应用程序启动的时候，设置堆的大小，但是可以在需要的时候扩展（分配器向操作系统申请更多的内存）。 4. 栈比堆要快，因为它存取模式使它可以轻松的分配和重新分配内存（指针/整型只是进行简单的递增或者递减运算），然而堆在分配和释放的时候有更多的复杂的 bookkeeping 参与。另外，在栈上的每个字节频繁的被复用也就意味着它可能映射到处理器缓存中，所以很快（译者注：局部性原理）。</p>
-<p>答案二</p>
-<p>Stack:</p>
-<p>1. 和堆一样存储在计算机 RAM 中。</p>
-<p>2. 在栈上创建变量的时候会扩展，并且会自动回收。</p>
-<p>3. 相比堆而言在栈上分配要快的多。</p>
-<p>4. 用数据结构中的栈实现。</p>
-<p>5. 存储局部数据，返回地址，用做参数传递。</p>
-<p>6. 当用栈过多时可导致栈溢出（无穷次（大量的）的递归调用，或者大量的内存分配）。</p>
-<p>7. 在栈上的数据可以直接访问（不是非要使用指针访问）。</p>
-<p>8. 如果你在编译之前精确的知道你需要分配数据的大小并且不是太大的时候，可以使用栈。</p>
-<p>9. 当你程序启动时决定栈的容量上限。</p>
-<p>Heap：</p>
-<p>1. 和栈一样存储在计算机RAM。</p>
-<p>2. 在堆上的变量必须要手动释放，不存在作用域的问题。数据可用 delete, delete[] 或者 free 来释放。</p>
-<p>3. 相比在栈上分配内存要慢。</p>
-<p>4. 通过程序按需分配。</p>
-<p>5. 大量的分配和释放可造成内存碎片。</p>
-<p>6. 在 C++ 中，在堆上创建数的据使用指针访问，用 new 或者 malloc 分配内存。</p>
-<p>7. 如果申请的缓冲区过大的话，可能申请失败。</p>
-<p>8. 在运行期间你不知道会需要多大的数据或者你需要分配大量的内存的时候，建议你使用堆。</p>
-<p>9. 可能造成内存泄露。</p>
-<p>举例：</p>
-<p>int foo()<br>
-{<br>
-char *pBuffer; //&lt;–nothing allocated yet (excluding the pointer itself, which is allocated here on the stack).<br>
-bool b = true; // Allocated on the stack.<br>
-if(b)<br>
-{<br>
-//Create 500 bytes on the stack<br>
-char buffer[500];</p>
-<p>//Create 500 bytes on the heap<br>
-pBuffer = new char[500];</p>
-<p>}//&lt;– buffer is deallocated here, pBuffer is not<br>
-}//&lt;— oops there’s a memory leak, I should have called delete[] pBuffer;</p>
-<p>答案三</p>
-<p>堆和栈是两种内存分配的两个统称。可能有很多种不同的实现方式，但是实现要符合几个基本的概念:</p>
-<p>1.对栈而言，栈中的新加数据项放在其他数据的顶部，移除时你也只能移除最顶部的数据（不能越位获取）。</p>
-<p></p>
-<p>2.对堆而言，数据项位置没有固定的顺序。你可以以任何顺序插入和删除，因为他们没有“顶部”数据这一概念。</p>
-<p></p>
-<p>上面上个图片很好的描述了堆和栈分配内存的方式。</p>
-<p>在通常情况下由操作系统（OS）和语言的运行时（runtime）控制吗？</p>
-<p>如前所述，堆和栈是一个统称，可以有很多的实现方式。计算机程序通常有一个栈叫做调用栈，用来存储当前函数调用相关的信息（比如：主调函数的地址，局部变量），因为函数调用之后需要返回给主调函数。栈通过扩展和收缩来承载信息。实际上，程序不是由运行时来控制的，它由编程语言、操作系统甚至是系统架构来决定。</p>
-<p>堆是在任何内存中动态和随机分配的（内存的）统称；也就是无序的。内存通常由操作系统分配，通过应用程序调用 API 接口去实现分配。在管理动态分配内存上会有一些额外的开销，不过这由操作系统来处理。</p>
-<p>它们的作用范围是什么？</p>
-<p>调用栈是一个低层次的概念，就程序而言，它和“作用范围”没什么关系。如果你反汇编一些代码，你就会看到指针引用堆栈部分。就高级语言而言，语言有它自己的范围规则。一旦函数返回，函数中的局部变量会直接直接释放。你的编程语言就是依据这个工作的。</p>
-<p>在堆中，也很难去定义。作用范围是由操作系统限定的，但是你的编程语言可能增加它自己的一些规则，去限定堆在应用程序中的范围。体系架构和操作系统是使用虚拟地址的，然后由处理器翻译到实际的物理地址中，还有页面错误等等。它们记录那个页面属于那个应用程序。不过你不用关心这些，因为你仅仅在你的编程语言中分配和释放内存，和一些错误检查（出现分配失败和释放失败的原因）。</p>
-<p>它们的大小由什么决定？</p>
-<p>依旧，依赖于语言，编译器，操作系统和架构。栈通常提前分配好了，因为栈必须是连续的内存块。语言的编译器或者操作系统决定它的大小。不要在栈上存储大块数据，这样可以保证有足够的空间不会溢出，除非出现了无限递归的情况（额，栈溢出了）或者其它不常见了编程决议。</p>
-<p>堆是任何可以动态分配的内存的统称。这要看你怎么看待它了，它的大小是变动的。在现代处理器中和操作系统的工作方式是高度抽象的，因此你在正常情况下不需要担心它实际的大小，除非你必须要使用你还没有分配的内存或者已经释放了的内存。</p>
-<p>哪个更快一些？</p>
-<p>栈更快因为所有的空闲内存都是连续的，因此不需要对空闲内存块通过列表来维护。只是一个简单的指向当前栈顶的指针。编译器通常用一个专门的、快速的寄存器来实现。更重要的一点事是，随后的栈上操作通常集中在一个内存块的附近，这样的话有利于处理器的高速访问（译者注：局部性原理）。</p>
-<p>答案四</p>
-<p>你问题的答案是依赖于实现的，根据不同的编译器和处理器架构而不同。下面简单的解释一下：</p>
-<p>1. 栈和堆都是用来从底层操作系统中获取内存的。</p>
-<p>2. 在多线程环境下每一个线程都可以有他自己完全的独立的栈，但是他们共享堆。并行存取被堆控制而不是栈。</p>
-<p>堆:</p>
-<p>1. 堆包含一个链表来维护已用和空闲的内存块。在堆上新分配（用 new 或者 malloc）内存是从空闲的内存块中找到一些满足要求的合适块。这个操作会更新堆中的块链表。这些元信息也存储在堆上，经常在每个块的头部一个很小区域。</p>
-<p>2. 堆的增加新快通常从地地址向高地址扩展。因此你可以认为堆随着内存分配而不断的增加大小。如果申请的内存大小很小的话，通常从底层操作系统中得到比申请大小要多的内存。</p>
-<p>3. 申请和释放许多小的块可能会产生如下状态：在已用块之间存在很多小的空闲块。进而申请大块内存失败，虽然空闲块的总和足够，但是空闲的小块是零散的，不能满足申请的大小，。这叫做“堆碎片”。</p>
-<p>4. 当旁边有空闲块的已用块被释放时，新的空闲块可能会与相邻的空闲块合并为一个大的空闲块，这样可以有效的减少“堆碎片”的产生。</p>
-<p></p>
-<p>栈:</p>
-<p>1. 栈经常与 sp 寄存器（译者注：”stack pointer”，了解汇编的朋友应该都知道）一起工作，最初 sp 指向栈顶（栈的高地址）。</p>
-<p>2. CPU 用 push 指令来将数据压栈，用 pop 指令来弹栈。当用 push 压栈时，sp 值减少（向低地址扩展）。当用 pop 弹栈时，sp 值增大。存储和获取数据都是 CPU 寄存器的值。</p>
-<p>3. 当函数被调用时，CPU使用特定的指令把当前的 IP （译者注：“instruction pointer”，是一个寄存器，用来记录 CPU 指令的位置）压栈。即执行代码的地址。CPU 接下来将调用函数地址赋给 IP ，进行调用。当函数返回时，旧的 IP 被弹栈，CPU 继续去函数调用之前的代码。</p>
-<p>4. 当进入函数时，sp 向下扩展，扩展到确保为函数的局部变量留足够大小的空间。如果函数中有一个 32-bit 的局部变量会在栈中留够四字节的空间。当函数返回时，sp 通过返回原来的位置来释放空间。</p>
-<p>5. 如果函数有参数的话，在函数调用之前，会将参数压栈。函数中的代码通过 sp 的当前位置来定位参数并访问它们。</p>
-<p>6. 函数嵌套调用和使用魔法一样，每一次新调用的函数都会分配函数参数，返回值地址、局部变量空间、嵌套调用的活动记录都要被压入栈中。函数返回时，按照正确方式的撤销。</p>
-<p>7. 栈要受到内存块的限制，不断的函数嵌套/为局部变量分配太多的空间，可能会导致栈溢出。当栈中的内存区域都已经被使用完之后继续向下写（低地址），会触发一个 CPU 异常。这个异常接下会通过语言的运行时转成各种类型的栈溢出异常。（译者注：“不同语言的异常提示不同，因此通过语言运行时来转换”我想他表达的是这个含义）</p>
-<p></p>
-<p>*函数的分配可以用堆来代替栈吗？</p>
-<p>不可以的，函数的活动记录（即局部或者自动变量）被分配在栈上， 这样做不但存储了这些变量，而且可以用来嵌套函数的追踪。</p>
-<p>堆的管理依赖于运行时环境，C 使用 malloc ，C++ 使用 new ，但是很多语言有垃圾回收机制。</p>
-<p>栈是更低层次的特性与处理器架构紧密的结合到一起。当堆不够时可以扩展空间，这不难做到，因为可以有库函数可以调用。但是，扩展栈通常来说是不可能的，因为在栈溢出的时候，执行线程就被操作系统关闭了，这已经太晚了。</p>
-<p>译者注</p>
-<p>关于堆栈的这个帖子，对我来说，收获非常多。我之前看过一些资料，自己写代码的时候也常常思考。就这方面，也和祥子（我的大学舍友，现在北京邮电读研，技术牛人）探讨过多次了。但是终究是一个一个的知识点，这个帖子看完之后，豁然开朗，把知识点终于连接成了一个网。这种感觉，经历过的一定懂得，期间的兴奋不言而喻。</p>
-<p>这个帖子跟帖者不少，我选了评分最高的四个。这四个之间也有一些是重复的观点。个人钟爱第四个回答者，我看的时候，瞬间高潮了，有木有？不过需要一些汇编语言、操作系统、计算机组成原理的的基础，知道那几个寄存器是干什么的，要知道计算机的流水线指令工作机制，保护/恢复现场等概念。三个回复者都涉及到了操作系统中虚拟内存；在比较速度的时候，大家一定要在脑中对“局部性原理”和计算机高速缓存有一个概念。</p>
-<p>如果你把这篇文章看懂了，我相信你收获的不只是堆和栈，你会理解的更多！</p>
-<p>兴奋之余，有几点还是要强调的，翻译没有逐字逐词翻译，大部分是通过我个人的知识积累和对回帖者的意图揣测而来的。请大家不要咬文嚼字，逐个推敲，我们的目的在于技术交流，不是么？达到这一目的就够了。</p>
-<p>下面是一些不确定点:</p>
-<p>1. 我没有听过 bookkeeping data 这种说法，故没有翻译。从上下文理解来看，可以想成是用来寄存器值？函数参数？返回地址？如果有了解具体含义的朋友，烦请告知。</p>
-<p>2. 栈和堆栈是一回事，英文表达是 stack，堆是 heap。</p>
-<p>3. 调用栈的概念，我是第一次听说，不太熟悉。大家可以去查查资料研究一下。</p>
-<p>以上，送给大家，本文结束。<br>
-————————————————</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[苹果设备和 mac电脑闪连]]></title>
-        <id>https://wukongun.github.io/post/ping-guo-she-bei-he-mac-dian-nao-shan-lian/</id>
-        <link href="https://wukongun.github.io/post/ping-guo-she-bei-he-mac-dian-nao-shan-lian/">
-        </link>
-        <updated>2017-03-15T07:45:35.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="iphone连接mac充电或者调试的时候-总是闪断-总结下这个问题">iPhone连接mac充电或者调试的时候 总是闪断 总结下这个问题</h3>
-<ol>
-<li>首先拔插数据线 看情况有无好转 接口内是否干净 有无杂物</li>
-<li>另外就是 电脑的usb电压不足 拔掉usb设备 关掉usb进程 重新连接usb设备 一般会解决闪连的问题<br>
-<code>sudo killall -STOP -c usbd</code></li>
-<li>如果还不行可以尝试换数据线 重复上面的方法</li>
-</ol>
 ]]></content>
     </entry>
 </feed>

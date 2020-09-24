@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>iOS 微信分享后，部分手机显示未验证应用 | Andy</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://wukongun.github.io/favicon.ico?v=1600945615411">
+<link rel="stylesheet" href="https://wukongun.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="最近我们的iOSApp微信分享，分享后会部分手机会出现未验证应用的情况，大大降低了用户的体验。注意事部分手机。经过查找发现是微信的问题，目前是灰度测试，后续如果不按照他们最新的对接可能全部分享都会显示未验证应用标识。中间也出现了些其他的小插..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://wukongun.github.io">
+        <img src="https://wukongun.github.io/images/avatar.png?v=1600945615411" class="site-logo">
+        <h1 class="site-title">Andy</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="https://wukongun.github.io" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/tag/CUSDytWuU/" class="site-nav">
+            技术
+          </a>
+        
+      
+        
+          <a href="/tag/30I54xNlw" class="site-nav">
+            生活
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于我
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/wukongun" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记录点滴
+
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/wukongun" target="_blank">Andy</a> | <a class="rss" href="https://wukongun.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">iOS 微信分享后，部分手机显示未验证应用</h2>
+            <div class="post-date">2020-09-24</div>
+            
+            <div class="post-content" v-pre>
+              <p>最近我们的iOSApp微信分享，分享后会部分手机会出现未验证应用的情况，大大降低了用户的体验。注意事部分手机。经过查找发现是微信的问题，目前是灰度测试，后续如果不按照他们最新的对接可能全部分享都会显示未验证应用标识。中间也出现了些其他的小插曲，下边我们按照步骤依次来修改。<br>
+一、升级SDK版本<br>
+1.首先看下自己项目中微信分享是否是最新版本，不是的话需要先升级到<img src="https://wukongun.github.io/post-images/1600943220583.jpg" alt="" loading="lazy">最新的版本目前是1.8.7版本。<br>
+2.如果之前你应用间跳转用的是URL Schemes的跳转，那么在升级SDK后就不能使用此方式进行App内外跳转了，必须使用Universallink方式跳转</p>
+<p>二、生成和配置Universallink<br>
+这里可以自己生成Universallink，这里不做具体描述。因为我们用的是ShareSDK，它会提供自动生成Universallink。<br>
+1.打开MobTech，执行下图，完成ShareSDK的工作。</p>
+<p>2.配置关联微信开放平台的universallink。<br>
+【管理中心】-【移动应用】-【选择要配置的应用】-【开发信息修改】<br>
+3.如果需要QQ分享也需要到QQ开放平台QQ互联。<br>
+【应用管理】-【移动应用】-【查看】-【平台信息】-【修改】，修改内容跟微信平台几乎一致，跟着QQ要求添加所需内容在mob平台里查找。</p>
+<p>二、配置项目工程<br>
+1.苹果开发者中心找到对应的bundleID，修改打开【Associated Domains】选项。<br>
+<img src="https://wukongun.github.io/post-images/1600943438366.jpg" alt="" loading="lazy"><br>
+2.在Project中【Signing&amp;Capabilities】中添加【Associated Domains】<br>
+<img src="https://wukongun.github.io/post-images/1600943455902.jpg" alt="" loading="lazy"><br>
+3.pod更新到最新的SDK，我这里pod 'mob_sharesdk', '~&gt; 4.3.8',你也可以pod微信或者QQ的开放SDK。<br>
+4.plist文件中【LSApplicationQueriesSchemes】中添加微信对应的白名单。<br>
+<img src="https://wukongun.github.io/post-images/1600943484402.jpg" alt="" loading="lazy"></p>
+<p>三、代码</p>
+<pre><code class="language-Objective-c">- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+此方法中添加注册微信和QQ或者ShareSDK的配置。
+比如： [WXApi registerApp:wechat_appid universalLink:wechat_universalLink];
+函数检测：
+//在register之前打开log, 后续可以根据log排查问题
+[WXApi startLogByLevel:WXLogLevelDetail logBlock:^(NSString *log) {
+    NSLog(@&quot;WeChatSDK: %@&quot;, log);
+}];
+
+//务必在调用自检函数前注册
+[WXApi registerApp:APP_ID universalLink:UNIVERSAL_LINK];
+
+//调用自检函数
+[WXApi checkUniversalLinkReady:^(WXULCheckStep step, WXCheckULStepResult* result) {
+    NSLog(@&quot;WeixinSDK2：%@, %u, %@, %@&quot;, @(step), result.success, result.errorInfo, result.suggestion);
+}];
+</code></pre>
+<p>控制台输出</p>
+<pre><code class="language-Objective-c">2020-06-15 14:30:37.718227+0800 SXAutoStreets[10552:2910027] WXApiSDK2:0, 1, check passed,
+2020-06-15 14:30:37.718377+0800 SXAutoStreets[10552:2910027] WXApiSDK2:1, 1, check passed,
+2020-06-15 14:30:37.720022+0800 SXAutoStreets[10552:2910027] WXApiSDK2:2, 1, check passed,
+2020-06-15 14:30:37.780891+0800 SXAutoStreets[10552:2910027] WXApiSDK:wxlog:set property list
+2020-06-15 14:30:37.790073+0800 SXAutoStreets[10552:2910027] WXApiSDK2:3, 1, check passed,
+2020-06-15 14:30:38.390261+0800 SXAutoStreets[10552:2910027] WXApiSDK2:4, 1, check passed,
+2020-06-15 14:30:40.781874+0800 SXAutoStreets[10552:2910027] WXApiSDK2:5, 1, Universal Link check passed. The application is launched by WeChat via Universal Link,
+2020-06-15 14:30:40.781981+0800 SXAutoStreets[10552:2910027] WXApiSDK2:6, 1, All Check Passed!,
+</code></pre>
+<p>如果0-6共7个步骤全部输出check passed，代表正确，否则代表有问题，需要一一查找。具体可以<a href="https://docs.qq.com/doc/DZHNvSGJLS3pqbHNl">参考此流程</a>对照。<br>
+<a href="https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/iOS.html#jump">新版集成文档</a></p>
+<p>2.添加方法,该方法不添加会造成4之后流程不通过和支付流程出现问题。切记！！！</p>
+<pre><code class="language-Objective-c">-(BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray&lt;id&lt;UIUserActivityRestoring&gt;&gt; * _Nullable))restorationHandler
+{
+    return  [WXApi handleOpenUniversalLink:userActivity delegate:self];
+}
+</code></pre>
+<p>到此我们要做的事情就完成了，新版本放量上去让整体错误率下降到90%以下才会从未验证应用中移除。所以版本更新后，我们需要做的事情就是需要等几天了。</p>
+<p>感触：找微信开放平台是真的没人理，这么个事情也不提前发个重大公告。搞得脑袋大。</p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://wukongun.github.io/post/xcode-12-bao-cuo-masconstraint-defined-here-has-different-definitions-in-different-modules/">
+                  <h3 class="post-title">
+                    xcode 12 报错 &#39;MASConstraint&#39; defined here has different definitions in different modules;
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>
