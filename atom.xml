@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>Andy</title>
-    <updated>2020-09-24T11:06:57.483Z</updated>
+    <updated>2020-09-25T04:35:28.067Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -196,7 +196,11 @@ if let albumName = params.first(where: { $0.name == &quot;albumname&quot; } )?.v
         <link href="https://wukongun.github.io/post/ios-14-guan-yu-idfa-quan-xian-de-shen-qing-ji-qi-bian-hua/">
         </link>
         <updated>2020-09-16T05:33:28.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="2020年09月03日">2020年09月03日</h2>
+        <content type="html"><![CDATA[<h2 id="2020年09年25日">2020年09年25日</h2>
+<blockquote>
+<p>看了很多消息说 idfa新变化推迟到2021年的年初实行 但是没有找到官方的文档</p>
+</blockquote>
+<h2 id="2020年09月03日">2020年09月03日</h2>
 <h3 id="目前苹果已发出通知关于idfa权限问题将会在明年才开始实行">目前苹果已发出通知，关于idfa权限问题将会在明年才开始实行</h3>
 <blockquote>
 <p>在 Apple，我们认为隐私是一项基本人权。正如在 WWDC20 上所宣布的，App Store 产品页面将包含一个新的隐私信息部分，帮助用户了解 app 的隐私保护做法。今天我们将为开发者发布更多详情，列明新的隐私部分所涵盖的内容。此功能将在年底之前向用户推出。而在下个月底前，您将能够通过 App Store Connect 提交相关信息，为其做好准备。</p>
