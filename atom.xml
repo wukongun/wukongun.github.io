@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://wukongun.github.io</id>
     <title>Andy</title>
-    <updated>2020-09-25T04:35:28.067Z</updated>
+    <updated>2020-11-09T06:57:03.917Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://wukongun.github.io"/>
     <link rel="self" href="https://wukongun.github.io/atom.xml"/>
@@ -11,6 +11,18 @@
     <logo>https://wukongun.github.io/images/avatar.png</logo>
     <icon>https://wukongun.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Andy</rights>
+    <entry>
+        <title type="html"><![CDATA[Xcode12 Info.plist显示不全解决办法]]></title>
+        <id>https://wukongun.github.io/post/xcode12-infoplist-xian-shi-bu-quan-jie-jue-ban-fa/</id>
+        <link href="https://wukongun.github.io/post/xcode12-infoplist-xian-shi-bu-quan-jie-jue-ban-fa/">
+        </link>
+        <updated>2020-11-09T06:55:33.000Z</updated>
+        <content type="html"><![CDATA[<p>升级了Xcode12，发现Info.plist显示是挤在一起的，然后想把第三栏拖过去又是无效，所以怎么办，看图：<br>
+<img src="https://wukongun.github.io/post-images/1604904981498.gif" alt="" loading="lazy"><br>
+点击右上角(参考下图) 提示为&quot;show or hiden code review&quot;的按钮两次即可；<br>
+<img src="https://wukongun.github.io/post-images/1604904993078.png" alt="" loading="lazy"></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[iOS 微信Universal Links 接入指南]]></title>
         <id>https://wukongun.github.io/post/ios-wei-xin-universal-links-jie-ru-zhi-nan/</id>
@@ -595,69 +607,6 @@ static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
 由于该账号还没有到设备重置的时间,所以无法截图，但是其数据删除的时间会在首页的Membership一栏中找到，如下图所示。如果你想要彻底的将设备的UDID删除，只能等到设备重置日期才可以。<br>
 <img src="https://wukongun.github.io/post-images/1600941232114.jpeg" alt="" loading="lazy"></li>
 </ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[iOS 新手引导页图片适配及其尺寸]]></title>
-        <id>https://wukongun.github.io/post/ios-xin-shou-yin-dao-ye-tu-pian-gua-pei-ji-qi-chi-cun/</id>
-        <link href="https://wukongun.github.io/post/ios-xin-shou-yin-dao-ye-tu-pian-gua-pei-ji-qi-chi-cun/">
-        </link>
-        <updated>2018-09-05T08:45:14.000Z</updated>
-        <content type="html"><![CDATA[<p>使用Assets.xcassets来管理引导页图片，将指定分辨率的图片放入指定的位置，使用时只需要拿到图片名，图片会根据分辨率自动选取匹配的图片 有点像@2x @3x图片自动管理机制<br>
-具体实现有以下几个步骤：<br>
-1.创建一个LaunchImage类型的图片集合（右边工具栏改你只要的尺寸大小，适配横屏竖屏iOS7之前等尺寸）<br>
-2.将创建的LaunchImage.launchimage从命名为后缀名为.imageset的图片集合introductoryPage1.imageset<br>
-3.根据分辨率将指定图片拖入到指定位置<br>
-4.如有多张图片引导页，可以使用同样方法创建多个introductoryPage2.imageset，introductoryPage3.imageset，introductoryPage4.imageset等</p>
-<p>目前主流适配的设备尺寸</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">尺寸</th>
-<th style="text-align:center">分辨率</th>
-<th style="text-align:center">@</th>
-<th style="text-align:center">型号</th>
-<th style="text-align:center">对应设备</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">4.7''</td>
-<td style="text-align:center">750×1334</td>
-<td style="text-align:center">@2x</td>
-<td style="text-align:center">Retina 4.7''</td>
-<td style="text-align:center">iPhone6/iPhone6s/iPhone7/iPhone7s/iPhone8/iPhone8s</td>
-</tr>
-<tr>
-<td style="text-align:center">5.5''</td>
-<td style="text-align:center">1242×2208</td>
-<td style="text-align:center">@3x</td>
-<td style="text-align:center">Retina 5.5''</td>
-<td style="text-align:center">iPhone6P/iPhone7P/iPhone8P</td>
-</tr>
-<tr>
-<td style="text-align:center">5.8''</td>
-<td style="text-align:center">1125×2436</td>
-<td style="text-align:center">@3x</td>
-<td style="text-align:center">iPhone X/iPhone XS</td>
-<td style="text-align:center">iPhoneX/iPhoneXs</td>
-</tr>
-<tr>
-<td style="text-align:center">6.1''</td>
-<td style="text-align:center">828x1792</td>
-<td style="text-align:center">@2x</td>
-<td style="text-align:center">iPhoneXR</td>
-<td style="text-align:center">iPhoneXR</td>
-</tr>
-<tr>
-<td style="text-align:center">6.5''</td>
-<td style="text-align:center">1242x2688</td>
-<td style="text-align:center">@3x</td>
-<td style="text-align:center">iPhoneX Max</td>
-<td style="text-align:center">iPhoneX Max</td>
-</tr>
-</tbody>
-</table>
 ]]></content>
     </entry>
 </feed>
